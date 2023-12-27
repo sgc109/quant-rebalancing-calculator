@@ -117,7 +117,7 @@ fun main() = runBlocking {
 
     val totalMoneyUsed = usedMoneyToBuyAggressiveAssets + usedMoneyToBuyDefensiveAssets
     val unusedMoney = newTotalMoney - totalMoneyUsed
-    println("unusedMoney: $unusedMoney (${round(unusedMoney / newTotalMoney * 100).toInt()}%)")
+    println("unusedMoney: $unusedMoney USD (${round(unusedMoney / newTotalMoney * 100).toInt()}%)")
 
     allAssets.forEach { symbol ->
         val diff = (resultAmountsBySymbol[symbol] ?: 0) - (originalStocksAmountMap[symbol] ?: 0)
