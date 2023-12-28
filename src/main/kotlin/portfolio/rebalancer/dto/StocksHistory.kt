@@ -1,3 +1,5 @@
+package portfolio.rebalancer.dto
+
 import kotlinx.serialization.Serializable
 
 @Serializable
