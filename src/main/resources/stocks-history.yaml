@@ -1,14 +1,8 @@
-date: 0000-00-00
+date: 2023-12-28
 stocks:
-  SPY: 0
-  QQQ: 0
-  IWM: 0
-  VGK: 0
-  EWJ: 0
-  EEM: 0
-  VNQ: 0
-  GLD: 0
-  DBC: 0
-  HYG: 0
-  LQD: 0
-  TLT: 0
+  IWM: 4
+  VNQ: 9
+  QQQ: 2
+  TLT: 8
+  VGK: 12
+  LQD: 12

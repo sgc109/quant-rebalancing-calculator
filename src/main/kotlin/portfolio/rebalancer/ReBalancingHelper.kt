@@ -1,62 +1,33 @@
 package portfolio.rebalancer
 
-import com.charleskorn.kaml.Yaml
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import net.jacobpeterson.alpaca.AlpacaAPI
-import net.jacobpeterson.alpaca.model.endpoint.marketdata.common.historical.bar.enums.BarTimePeriod
-import net.jacobpeterson.alpaca.model.endpoint.marketdata.stock.historical.bar.StockBar
-import net.jacobpeterson.alpaca.model.endpoint.marketdata.stock.historical.bar.enums.BarAdjustment
-import net.jacobpeterson.alpaca.model.endpoint.marketdata.stock.historical.bar.enums.BarFeed
-import net.jacobpeterson.alpaca.rest.endpoint.marketdata.stock.StockMarketDataEndpoint
-import portfolio.rebalancer.dto.StocksHistory
-import java.io.FileNotFoundException
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.nio.file.StandardOpenOption
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import kotlin.math.round
 
-class ReBalancingHelper {
+class ReBalancingHelper(
+    private val stockHistoryFileManager: StockHistoryFileManager,
+    private val marketDataClient: MarketDataClient,
+) {
     suspend fun reBalance(
         additionalMoneyToDeposit: Int,
         moneyToWithdraw: Int,
     ) = coroutineScope {
-        val stocksHistory = loadLastStockPositionsMapFromFile()
+        val stocksHistory = stockHistoryFileManager.loadLastStockPositionsMapFromFile()
 
         val originalStocksAmountMap: Map<String, Int> = stocksHistory?.stocks ?: emptyMap()
 
-        val stockMarketData = AlpacaAPI().stockMarketData()
-
         println("You are adding $additionalMoneyToDeposit USD to your portfolio!")
 
-        val baseTime = getLatestMinuteBar(stockMarketData).timestamp
+        val baseTime = marketDataClient.getLatestMinuteBar().timestamp
         println("baseTime: $baseTime")
-        val scoringMonths = listOf(1, 3, 6, 12)
 
-        val pastMonthToSymbolToPrice = (listOf(0) + scoringMonths).associateWith { pastMonth ->
-            async(Dispatchers.IO) {
-                getPrice(
-                    stockMarketData,
-                    ALL_ASSETS.toList(),
-                    baseTime,
-                    pastMonth,
-                )
-            }
-        }.also {
-            it.values.awaitAll()
-        }.mapValues {
-            it.value.await()
-        }
+        val pastMonthToSymbolToPrice: Map<Int, Map<String, Double>> =
+            marketDataClient.fetchPricesByPastMonth(baseTime)
 
         println(pastMonthToSymbolToPrice)
         val symbolToCurrentPrice = pastMonthToSymbolToPrice[0]!!
 
         val symbolToMomentumScore = ALL_ASSETS.associateWith { symbol ->
-            scoringMonths.sumOf { pastMonth ->
+            SCORING_MONTHS.sumOf { pastMonth ->
                 val basePrice = symbolToCurrentPrice[symbol]!!
                 val pastPrice = pastMonthToSymbolToPrice[pastMonth]?.get(symbol)!!
                 val earnRatio = calculateEarnRate(basePrice = basePrice, pastPrice = pastPrice)
@@ -123,7 +94,7 @@ class ReBalancingHelper {
 
         printWhatToBuyAndSell(ALL_ASSETS, resultAmountsBySymbol, originalStocksAmountMap)
 
-        writeNewStockPositionsToFile(
+        stockHistoryFileManager.writeNewStockPositionsToFile(
             isFirstPosition = stocksHistory == null,
             resultAmountsBySymbol,
         )
@@ -141,53 +112,6 @@ class ReBalancingHelper {
             } else if (diff < 0) {
                 println("Sell $symbol by $diff!")
             }
-        }
-    }
-
-    private fun writeNewStockPositionsToFile(
-        isFirstPosition: Boolean,
-        resultAmountsBySymbol: Map<String, Int>,
-    ) {
-        val prefixDashes = if (isFirstPosition) {
-            "---\n"
-        } else {
-            ""
-        }
-
-        val stringToAppendOnFile = prefixDashes +
-            """
-            date: ${ZonedDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}
-            stocks:
-            
-            """.trimIndent()
-                .plus(
-                    resultAmountsBySymbol.entries.joinToString("\n") { (symbol, amount) ->
-                        "  $symbol: $amount"
-                    },
-                )
-        println(stringToAppendOnFile)
-
-        Files.write(
-            Paths.get("src/main/resources", "stocks-history.yaml"),
-            listOf(stringToAppendOnFile),
-            StandardOpenOption.APPEND,
-        )
-    }
-
-    private fun loadLastStockPositionsMapFromFile(): StocksHistory? {
-        val yamlString =
-            javaClass.classLoader.getResourceAsStream("stocks-history.yaml")
-                ?.bufferedReader()
-                ?.use { it.readText() }
-                ?: throw FileNotFoundException()
-
-        val lastChunk = yamlString.split("---\n").last()
-        println(lastChunk)
-
-        return if (lastChunk.isNotBlank()) {
-            Yaml.default.decodeFromString(StocksHistory.serializer(), lastChunk)
-        } else {
-            null
         }
     }
 
@@ -212,42 +136,6 @@ class ReBalancingHelper {
         return (basePrice - pastPrice) / basePrice
     }
 
-    private fun getLatestMinuteBar(stockMarketData: StockMarketDataEndpoint, symbol: String = "SPY"): StockBar {
-        return stockMarketData
-            .getBars(
-                symbol,
-                ZonedDateTime.now().minusWeeks(1),
-                ZonedDateTime.now(),
-                MAX_FETCH_BARS_CNT,
-                null,
-                1,
-                BarTimePeriod.MINUTE,
-                BarAdjustment.SPLIT,
-                BarFeed.IEX,
-            ).bars.last()
-    }
-
-    private fun getPrice(
-        stockMarketData: StockMarketDataEndpoint,
-        symbols: List<String>,
-        baseTime: ZonedDateTime,
-        pastMonth: Int,
-    ): Map<String, Double> {
-        val startDate = baseTime.minusMonths(pastMonth.toLong()).minusDays(1)
-        return stockMarketData
-            .getBars(
-                symbols,
-                startDate,
-                startDate.plusDays(7),
-                MAX_FETCH_BARS_CNT,
-                null,
-                1,
-                BarTimePeriod.DAY,
-                BarAdjustment.SPLIT,
-                BarFeed.IEX,
-            ).bars.mapValues { it.value.first().close }
-    }
-
     companion object {
         const val MAX_FETCH_BARS_CNT = 10000
         const val CNT_AGGRESSIVE_ASSETS_TO_BUY = 5
@@ -257,5 +145,7 @@ class ReBalancingHelper {
         )
         val DEFENSIVE_ASSETS = setOf("LQD", "IEF", "SHY")
         val ALL_ASSETS = AGGRESSIVE_ASSETS + DEFENSIVE_ASSETS
+
+        val SCORING_MONTHS = listOf(1, 3, 6, 12) // 13612W 모멘텀 스코어를 계산하기 위한 months
     }
 }

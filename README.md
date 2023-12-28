@@ -18,15 +18,35 @@ VAA Balanced 는 총 14가지 ETF 의 13612W 모멘텀 스코어를 계산해야
 
 ### 사전 세팅
 
-* /resources 내 alpaca.properties 파일을 생성합니다.
+* `/resources` 내 alpaca.properties 파일을 생성합니다.
 * alpaca.properties 에 다음과 같은 형식으로 Alpaca API Key, Secret Key 를 입력합니다.
     * [Alpaca 개발자 콘솔](https://app.alpaca.markets/paper/dashboard/overview)에서 API Key, Secret Key 를 발급받을 수 있습니다.
 
 ```
-  key_id = <KEY_ID>
-  secret_key = <SECRET_KEY>
-  endpoint_api_type = paper
-  data_api_type = iex
+key_id = <KEY_ID>
+secret_key = <SECRET_KEY>
+endpoint_api_type = paper
+data_api_type = iex
+```
+
+* (Optional) 만약 VVA Balanced 로 모두 전환하고 싶은 포트폴리오가 있다면, `/resources` 내 stocks-history.yaml 파일을 생성하여 아래와같은 형식으로 보유 주식들에 대한
+  수량을 입력합니다.
+
+```
+date: 2023-12-28
+stocks:
+  SPY: 1
+  QQQ: 7
+  IWM: 9
+  VGK: 0
+  EWJ: 2
+  EEM: 7
+  VNQ: 10
+  GLD: 13
+  DBC: 19
+  HYG: 6
+  LQD: 5
+  TLT: 3
 ```
 
 ### 실전 사용
@@ -38,7 +58,7 @@ VAA Balanced 는 총 14가지 ETF 의 13612W 모멘텀 스코어를 계산해야
 ## 주의사항
 
 * stocks-history.yaml 파일의 마지막에 현재 보유하고있는 각 주식의 수량을 정확하게 입력했는지 확인하세요.
-  * 만약 잘못 입력되어있다면 리밸런싱 전 총 자산을 잘못 계산할 수 있고, 이는 결과적으로 매수/매도해야하는 주식의 수량을 잘못 계산하게 됩니다.
+    * 만약 잘못 입력되어있다면 리밸런싱 전 총 자산을 잘못 계산할 수 있고, 이는 결과적으로 매수/매도해야하는 주식의 수량을 잘못 계산하게 됩니다.
 
 ## 향후 개발 방향성
 
