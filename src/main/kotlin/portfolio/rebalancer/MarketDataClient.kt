@@ -19,7 +19,7 @@ class MarketDataClient {
                 symbol,
                 ZonedDateTime.now().minusWeeks(1),
                 ZonedDateTime.now(),
-                ReBalancingHelper.MAX_FETCH_BARS_CNT,
+                VAAReBalancingHelper.MAX_FETCH_BARS_CNT,
                 null,
                 1,
                 BarTimePeriod.MINUTE,
@@ -31,11 +31,11 @@ class MarketDataClient {
     suspend fun fetchPricesByPastMonth(
         baseTime: ZonedDateTime,
     ): Map<Int, Map<String, Double>> = coroutineScope {
-        (listOf(0) + ReBalancingHelper.SCORING_MONTHS).associateWith { pastMonth ->
+        (listOf(0) + VAAReBalancingHelper.SCORING_MONTHS).associateWith { pastMonth ->
             async(Dispatchers.IO) {
                 batchGetPrices(
                     stockMarketData,
-                    ReBalancingHelper.ALL_ASSETS.toList(),
+                    VAAReBalancingHelper.ALL_ASSETS.toList(),
                     baseTime,
                     pastMonth,
                 )
@@ -59,7 +59,7 @@ class MarketDataClient {
                 symbols,
                 startDate,
                 startDate.plusDays(7),
-                ReBalancingHelper.MAX_FETCH_BARS_CNT,
+                VAAReBalancingHelper.MAX_FETCH_BARS_CNT,
                 null,
                 1,
                 BarTimePeriod.DAY,

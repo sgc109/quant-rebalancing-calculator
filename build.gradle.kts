@@ -15,6 +15,8 @@ dependencies {
     implementation("net.jacobpeterson:alpaca-java:9.2.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("com.charleskorn.kaml:kaml:0.56.0")
+    testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
+    testImplementation("io.kotest:kotest-assertions-core:5.8.0")
     testImplementation(kotlin("test"))
 }
 

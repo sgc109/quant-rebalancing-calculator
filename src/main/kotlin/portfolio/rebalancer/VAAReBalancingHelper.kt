@@ -3,14 +3,15 @@ package portfolio.rebalancer
 import kotlinx.coroutines.coroutineScope
 import kotlin.math.round
 
-class ReBalancingHelper(
+class VAAReBalancingHelper(
     private val stockHistoryFileManager: StockHistoryFileManager,
     private val marketDataClient: MarketDataClient,
 ) {
     suspend fun reBalance(
         additionalMoneyToDeposit: Int,
         moneyToWithdraw: Int,
-    ) = coroutineScope {
+        dryRun: Boolean = false,
+    ): Result = coroutineScope {
         val stocksHistory = stockHistoryFileManager.loadLastStockPositionsMapFromFile()
 
         val originalStocksAmountMap: Map<String, Int> = stocksHistory?.stocks ?: emptyMap()
@@ -70,33 +71,47 @@ class ReBalancingHelper(
             (budgetForEachAggressiveAsset / symbolToCurrentPrice[it]!!).toInt()
         }
 
-        val usedMoneyToBuyAggressiveAssets = aggressiveAssetsAmountToBuyBySymbol.entries.sumOf {
-            val usedMoney = symbolToCurrentPrice[it.key]!! * it.value
-            println("unused money percent(${it.key}): ${(budgetForEachAggressiveAsset - usedMoney) / budgetForEachAggressiveAsset * 100}%")
-            usedMoney
-        }
         val defensiveAssetAmountToBuy = (defensiveAssetsBudget / symbolToCurrentPrice[defensiveAssetToBuy]!!).toInt()
         val defensiveAssetsAndAmountToBuyPair = mapOf(
             defensiveAssetToBuy to defensiveAssetAmountToBuy,
         )
-        val usedMoneyToBuyDefensiveAssets = symbolToCurrentPrice[defensiveAssetToBuy]!! * defensiveAssetAmountToBuy
-        println("unused money percent($defensiveAssetToBuy): ${(defensiveAssetsBudget - usedMoneyToBuyDefensiveAssets) / defensiveAssetsBudget * 100}%")
-
         val resultAmountsBySymbol =
             mergeTwoStringToIntMaps(
                 aggressiveAssetsAmountToBuyBySymbol,
                 defensiveAssetsAndAmountToBuyPair,
             )
 
+        val unusedPercentageForAggressiveBudgets = aggressiveAssetsAmountToBuyBySymbol.mapValues {
+            val usedMoney = symbolToCurrentPrice[it.key]!! * it.value
+            (budgetForEachAggressiveAsset - usedMoney) / budgetForEachAggressiveAsset * 100
+        }
+
+        val usedMoneyToBuyDefensiveAssets = symbolToCurrentPrice[defensiveAssetToBuy]!! * defensiveAssetAmountToBuy
+        val unusedPercentageForDefensiveBudget =
+            (defensiveAssetsBudget - usedMoneyToBuyDefensiveAssets) / defensiveAssetsBudget * 100
+
+        val unusedPercentages =
+            unusedPercentageForAggressiveBudgets + (defensiveAssetToBuy to unusedPercentageForDefensiveBudget)
+
+        val usedMoneyToBuyAggressiveAssets = aggressiveAssetsAmountToBuyBySymbol.entries.sumOf {
+            symbolToCurrentPrice[it.key]!! * it.value
+        }
         val totalMoneyUsed = usedMoneyToBuyAggressiveAssets + usedMoneyToBuyDefensiveAssets
         val unusedMoney = newTotalMoney - totalMoneyUsed
-        println("unusedMoney: $unusedMoney USD (${round(unusedMoney / newTotalMoney * 100).toInt()}%)")
+        val totalUnusedPercentage = round(unusedMoney / newTotalMoney * 100).toInt()
 
         printWhatToBuyAndSell(ALL_ASSETS, resultAmountsBySymbol, originalStocksAmountMap)
 
-        stockHistoryFileManager.writeNewStockPositionsToFile(
-            isFirstPosition = stocksHistory == null,
-            resultAmountsBySymbol,
+        if (!dryRun) {
+            stockHistoryFileManager.writeNewStockPositionsToFile(
+                isFirstPosition = stocksHistory == null,
+                resultAmountsBySymbol,
+            )
+        }
+
+        Result(
+            unusedPercentages,
+            totalUnusedPercentage,
         )
     }
 
@@ -134,6 +149,23 @@ class ReBalancingHelper(
 
     private fun calculateEarnRate(basePrice: Double, pastPrice: Double): Double {
         return (basePrice - pastPrice) / basePrice
+    }
+
+    data class Result(
+        val unusedPercentages: Map<String, Double>,
+        val totalUnusedPercentage: Int,
+    ) {
+        fun printResult() {
+            unusedPercentages.forEach {
+                println("unused money percent(${it.key}): ${it.value}%")
+            }
+
+            println("total unusedMoney: $totalUnusedPercentage%")
+        }
+
+        fun isAllAccurateUnderPercent(percent: Int): Boolean {
+            return unusedPercentages.values.all { it < percent.toDouble() }
+        }
     }
 
     companion object {
