@@ -8,7 +8,7 @@ VAA Balanced 는 총 14가지 ETF 의 13612W 모멘텀 스코어를 계산해야
 
 ## 동작 방식
 
-* Alpaca 의 Market Data API 의 Free Tier 를 사용하여 15분 지연된 주가 정보를 가져옵니다.
+* [Alpaca](https://alpaca.markets/) 의 Market Data API 의 Free Tier 를 사용하여 15분 지연된 주가 정보를 가져옵니다.
 * stocks-history.yaml 에 리밸런싱하는 시점마다 리밸런싱 결과(날짜 및 종목 별 주식 수량)를 기록하며, 프로그램 실행 시 마지막 기록을 기반으로 계산하여 어떤 종목을 얼마나 사야하는지, 혹은
   팔아야하는지 알려주고 결과를 파일 끝에 기록합니다.
 * VAA Balanced 전략의 모든 종목은 미국 ETF 이기 때문에 모든 가격은 USD 를 기준으로 합니다.
