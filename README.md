@@ -1,4 +1,4 @@
-# quant
+# quant-rebalancing-calculator
 
 잘 알려진 동적 자산배분 전략인 VAA(Vigilant Asset Allocation)-Balanced
 포트폴리오([Paper](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3002624))의
