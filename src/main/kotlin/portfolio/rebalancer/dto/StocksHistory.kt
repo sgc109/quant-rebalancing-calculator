@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class StocksHistory(
     val date: String,
     val stocks: Map<String, Int>,
-    val lastPutMoneyAmount: Int?,
+    val additionalDeposit: Int? = null,
 )

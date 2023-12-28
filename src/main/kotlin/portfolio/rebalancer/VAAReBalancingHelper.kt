@@ -46,9 +46,10 @@ class VAAReBalancingHelper(
         val defensiveInvestingRatio = cntNegativeScores.coerceAtMost(4) * 0.25
         println("defensiveInvestingRatio: ${(defensiveInvestingRatio * 100).toInt()}%")
 
-        val newTotalMoney = originalStocksAmountMap.map {
+        val originalTotalPrice = originalStocksAmountMap.map {
             symbolToCurrentPrice[it.key]!! * it.value
-        }.sum() + additionalMoneyToDeposit - moneyToWithdraw
+        }.sum()
+        val newTotalMoney = originalTotalPrice + additionalMoneyToDeposit - moneyToWithdraw
 
         val defensiveAssetsBudget = newTotalMoney * defensiveInvestingRatio
         val aggressiveAssetsBudget = newTotalMoney - defensiveAssetsBudget
@@ -106,6 +107,7 @@ class VAAReBalancingHelper(
             stockHistoryFileManager.writeNewStockPositionsToFile(
                 isFirstPosition = stocksHistory == null,
                 resultAmountsBySymbol,
+                additionalMoneyToDeposit,
             )
         }
 

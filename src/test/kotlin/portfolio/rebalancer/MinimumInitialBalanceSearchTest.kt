@@ -11,9 +11,11 @@ class MinimumInitialBalanceSearchTest : FunSpec({
     test("모든 자산 분배 비율에 미사용 금액의 비율이 5% 미만인 초기 투입 비용 찾기") {
         var found = false
 
+        // 필요에 따라 수정
         val start = 10000
         val end = 20000
         val step = 100
+        val unusedPercentLimit = 10
 
         for (totalBalance in start..end step step) {
             if (totalBalance % 1000 == 0) {
@@ -25,7 +27,7 @@ class MinimumInitialBalanceSearchTest : FunSpec({
 
             res.printResult()
 
-            if (res.isAllAccurateUnderPercent(10)) {
+            if (res.isAllAccurateUnderPercent(unusedPercentLimit)) {
                 println("totalBalance: $totalBalance")
                 found = true
                 break

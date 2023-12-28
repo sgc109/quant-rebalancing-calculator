@@ -30,6 +30,7 @@ class StockHistoryFileManager {
     fun writeNewStockPositionsToFile(
         isFirstPosition: Boolean,
         resultAmountsBySymbol: Map<String, Int>,
+        additionalMoneyToDeposit: Int,
     ) {
         val prefixDashes = if (isFirstPosition) {
             ""
@@ -40,6 +41,7 @@ class StockHistoryFileManager {
         val stringToAppendOnFile = prefixDashes +
             """
             date: ${ZonedDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}
+            additionalDeposit: $additionalMoneyToDeposit
             stocks:
             
             """.trimIndent()
