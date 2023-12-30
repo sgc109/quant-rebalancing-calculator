@@ -54,8 +54,9 @@ stocks:
 ### 실전 사용
 
 * 매달 1회 리밸런싱을 해야하는 시점에 Main.kt 를 실행합니다.
-* 파일 최상단에 있는 `ADDITIONAL_MONEY_TO_DEPOSIT` 상수를 내가 이번 리밸런싱에 추가로 투자할 금액(USD 기준)으로 수정합니다.
-* 파일 최상단에 있는 `MONEY_TO_WITHDRAW` 상수를 내가 이번 리밸런싱에 회수할 금액(USD 기준)으로 수정합니다.
+  * 파일 최상단에 있는 `ADDITIONAL_MONEY_TO_DEPOSIT` 상수를 내가 이번 리밸런싱에 추가로 투자할 금액(USD 기준)으로 수정합니다.
+  * 파일 최상단에 있는 `MONEY_TO_WITHDRAW` 상수를 내가 이번 리밸런싱에 회수할 금액(USD 기준)으로 수정합니다.
+* 출력 결과 또는 stocks-history.yaml 파일 마지막에 추가된 부분을 참고하여 직접 HTS 에서 주식을 매수/매도합니다.
 
 ## 주의사항
 
