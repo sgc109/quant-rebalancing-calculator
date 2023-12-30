@@ -69,6 +69,6 @@ class MarketDataClient {
     }
 
     companion object {
-        val stockMarketData = AlpacaAPI().stockMarketData()
+        val stockMarketData: StockMarketDataEndpoint = AlpacaAPI().stockMarketData()
     }
 }

@@ -54,11 +54,6 @@ class VAAReBalancingHelper(
         val defensiveAssetsBudget = newTotalMoney * defensiveInvestingRatio
         val aggressiveAssetsBudget = newTotalMoney - defensiveAssetsBudget
 
-        val defensiveAssetToBuy = DEFENSIVE_ASSETS.associateWith { symbol ->
-            symbolToMomentumScore[symbol]!!
-        }.maxBy { it.value }.key
-        println("You should buy defensive assets: $defensiveAssetToBuy")
-
         val aggressiveAssetsToBuy = AGGRESSIVE_ASSETS.associateWith { symbol ->
             symbolToMomentumScore[symbol]!!
         }.entries.sortedByDescending { it.value }
@@ -72,10 +67,26 @@ class VAAReBalancingHelper(
             (budgetForEachAggressiveAsset / symbolToCurrentPrice[it]!!).toInt()
         }
 
-        val defensiveAssetAmountToBuy = (defensiveAssetsBudget / symbolToCurrentPrice[defensiveAssetToBuy]!!).toInt()
-        val defensiveAssetsAndAmountToBuyPair = mapOf(
-            defensiveAssetToBuy to defensiveAssetAmountToBuy,
-        )
+        val defensiveAssetToBuy = if (defensiveInvestingRatio > 0) {
+            DEFENSIVE_ASSETS.associateWith { symbol ->
+                symbolToMomentumScore[symbol]!!
+            }.maxBy { it.value }.key.also {
+                println("You should buy defensive assets: $it")
+            }
+        } else {
+            println("You shouldn't buy any defensive assets")
+            null
+        }
+
+        val defensiveAssetAmountToBuy = defensiveAssetToBuy?.let {
+            (defensiveAssetsBudget / symbolToCurrentPrice[defensiveAssetToBuy]!!).toInt()
+        } ?: 0
+
+        val defensiveAssetsAndAmountToBuyPair = defensiveAssetToBuy?.let {
+            mapOf(
+                defensiveAssetToBuy to defensiveAssetAmountToBuy,
+            )
+        }
         val resultAmountsBySymbol =
             mergeTwoStringToIntMaps(
                 aggressiveAssetsAmountToBuyBySymbol,
@@ -87,12 +98,18 @@ class VAAReBalancingHelper(
             (budgetForEachAggressiveAsset - usedMoney) / budgetForEachAggressiveAsset * 100
         }
 
-        val usedMoneyToBuyDefensiveAssets = symbolToCurrentPrice[defensiveAssetToBuy]!! * defensiveAssetAmountToBuy
-        val unusedPercentageForDefensiveBudget =
-            (defensiveAssetsBudget - usedMoneyToBuyDefensiveAssets) / defensiveAssetsBudget * 100
+        val usedMoneyToBuyDefensiveAssets =
+            defensiveAssetToBuy?.let {
+                symbolToCurrentPrice[defensiveAssetToBuy]!! * defensiveAssetAmountToBuy
+            } ?: 0.0
 
         val unusedPercentages =
-            unusedPercentageForAggressiveBudgets + (defensiveAssetToBuy to unusedPercentageForDefensiveBudget)
+            defensiveAssetToBuy?.let {
+                val unusedPercentageForDefensiveBudget =
+                    (defensiveAssetsBudget - usedMoneyToBuyDefensiveAssets) / defensiveAssetsBudget * 100
+                unusedPercentageForAggressiveBudgets +
+                    (defensiveAssetToBuy to unusedPercentageForDefensiveBudget)
+            } ?: unusedPercentageForAggressiveBudgets
 
         val usedMoneyToBuyAggressiveAssets = aggressiveAssetsAmountToBuyBySymbol.entries.sumOf {
             symbolToCurrentPrice[it.key]!! * it.value
@@ -133,9 +150,16 @@ class VAAReBalancingHelper(
     }
 
     private fun mergeTwoStringToIntMaps(
-        m1: Map<String, Int>,
-        m2: Map<String, Int>,
+        m1: Map<String, Int>?,
+        m2: Map<String, Int>?,
     ): Map<String, Int> {
+        require(m1 != null || m2 != null) { "Both maps are null" }
+        if (m1 == null) {
+            return m2!!
+        }
+        if (m2 == null) {
+            return m1
+        }
         return (m1.keys + m2.keys).distinct().mapNotNull { key ->
             if (m1.containsKey(key) && m2.containsKey(key)) {
                 key to (m1[key]!! + m2[key]!!)
@@ -150,7 +174,7 @@ class VAAReBalancingHelper(
     }
 
     private fun calculateEarnRate(basePrice: Double, pastPrice: Double): Double {
-        return (basePrice - pastPrice) / basePrice
+        return basePrice / pastPrice
     }
 
     data class Result(
