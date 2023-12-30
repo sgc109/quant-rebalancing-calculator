@@ -1,6 +1,7 @@
 package portfolio.rebalancer
 
 import kotlinx.coroutines.coroutineScope
+import kotlin.math.abs
 import kotlin.math.round
 
 class VAAReBalancingHelper(
@@ -144,7 +145,7 @@ class VAAReBalancingHelper(
             if (diff > 0) {
                 println("Buy $symbol by $diff!")
             } else if (diff < 0) {
-                println("Sell $symbol by $diff!")
+                println("Sell $symbol by ${abs(diff)}!")
             }
         }
     }

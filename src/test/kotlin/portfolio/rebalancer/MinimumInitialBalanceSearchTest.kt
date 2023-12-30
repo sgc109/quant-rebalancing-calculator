@@ -8,11 +8,11 @@ class MinimumInitialBalanceSearchTest : FunSpec({
     val marketDataClient = MarketDataClient()
     val reBalancingHelper = VAAReBalancingHelper(stockHistoryFileManager, marketDataClient)
 
-    test("모든 자산 분배 비율에 미사용 금액의 비율이 5% 미만인 초기 투입 비용 찾기") {
+    test("모든 자산 분배 비율에 미사용 금액의 비율이 10% 미만인 초기 투입 비용 찾기") {
         var found = false
 
         // 필요에 따라 수정
-        val start = 10000
+        val start = 0
         val end = 20000
         val step = 100
         val unusedPercentLimit = 10
