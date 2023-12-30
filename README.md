@@ -70,4 +70,5 @@ stocks:
 * VAA-Balanced 이외에 다른 포트폴리오도 지원
     * (e.g. 60/40, Permanent Portfolio, 올시즌, 올웨더, GAA, PAA, DAA, LAA, BAA, ABAA, ...)
 * 자동매매 기능 추가
+* AWS Lambda 등을 통해 정해진 주기마다 자동 리밸런싱 & 카톡으로 성공/실패 알림
 * 손쉽게 백트래킹을 할 수 있는 [Kotlin Notebook](https://kotlinlang.org/docs/data-science-overview.html#kotlin-notebook) 추가
