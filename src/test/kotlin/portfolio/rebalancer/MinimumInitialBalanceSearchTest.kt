@@ -8,7 +8,7 @@ class MinimumInitialBalanceSearchTest : FunSpec({
     val marketDataClient = MarketDataClient()
     val reBalancingHelper = VAAReBalancingHelper(stockHistoryFileManager, marketDataClient)
 
-    test("모든 자산 분배 비율에 미사용 금액의 비율이 10% 미만인 초기 투입 비용 찾기") {
+    test("모든 자산 분배 비율에 미사용 금액의 비율이 10% 미만인 최소 추가 투입 비용 찾기") {
         var found = false
 
         // 필요에 따라 수정
@@ -17,18 +17,55 @@ class MinimumInitialBalanceSearchTest : FunSpec({
         val step = 100
         val unusedPercentLimit = 10
 
-        for (totalBalance in start..end step step) {
-            if (totalBalance % 1000 == 0) {
-                println("[progress] totalBalance: $totalBalance")
+        for (additionalMoney in start..end step step) {
+            if (additionalMoney % 1000 == 0) {
+                println("[progress] additionalMoney: $additionalMoney")
             }
 
             val res =
-                reBalancingHelper.reBalance(additionalMoneyToDeposit = totalBalance, moneyToWithdraw = 0, dryRun = true)
+                reBalancingHelper.reBalance(
+                    additionalMoneyToDeposit = additionalMoney,
+                    moneyToWithdraw = 0,
+                    dryRun = true,
+                )
 
             res.printResult()
 
             if (res.isAllAccurateUnderPercent(unusedPercentLimit)) {
-                println("totalBalance: $totalBalance")
+                println("additionalMoney: $additionalMoney")
+                found = true
+                break
+            }
+        }
+
+        found shouldBe true
+    }
+
+    test("모든 자산 분배 비율에 미사용 금액의 비율이 10% 미만인 최소 인출 비용 찾기") {
+        var found = false
+
+        // 필요에 따라 수정
+        val start = 0
+        val end = 20000
+        val step = 100
+        val unusedPercentLimit = 10
+
+        for (withdrawalAmount in start..end step step) {
+            if (withdrawalAmount % 1000 == 0) {
+                println("[progress] withdrawalAmount: $withdrawalAmount")
+            }
+
+            val res =
+                reBalancingHelper.reBalance(
+                    additionalMoneyToDeposit = 0,
+                    moneyToWithdraw = withdrawalAmount,
+                    dryRun = true,
+                )
+
+            res.printResult()
+
+            if (res.isAllAccurateUnderPercent(unusedPercentLimit)) {
+                println("withdrawalAmount: $withdrawalAmount")
                 found = true
                 break
             }

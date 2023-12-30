@@ -51,6 +51,7 @@ class VAAReBalancingHelper(
             symbolToCurrentPrice[it.key]!! * it.value
         }.sum()
         val newTotalMoney = originalTotalPrice + additionalMoneyToDeposit - moneyToWithdraw
+        require(newTotalMoney > 0) { "'newTotalMoney' should not be negative. Please reduce withdrawal amount." }
 
         val defensiveAssetsBudget = newTotalMoney * defensiveInvestingRatio
         val aggressiveAssetsBudget = newTotalMoney - defensiveAssetsBudget
