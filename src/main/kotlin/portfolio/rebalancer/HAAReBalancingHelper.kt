@@ -218,8 +218,8 @@ class HAAReBalancingHelper(
         val AGGRESSIVE_ASSETS = setOf(
             "SPY",
             "IWM",
-            "VWO",
-            "VEA",
+            "EFA",
+            "EEM",
             "VNQ",
             "PDBC",
             "IEF",
