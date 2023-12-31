@@ -25,7 +25,11 @@ class VAAReBalancingHelper(
         println("baseTime: $baseTime")
 
         val pastMonthToSymbolToPrice: Map<Int, Map<String, Double>> =
-            marketDataClient.fetchPricesByPastMonth(ALL_ASSETS.toList(), SCORING_MONTHS, baseTime)
+            marketDataClient.fetchPricesByPastMonth(
+                (ALL_ASSETS + originalStocksAmountMap.keys).toList(),
+                SCORING_MONTHS,
+                baseTime,
+            )
 
         println(pastMonthToSymbolToPrice)
         val symbolToCurrentPrice = pastMonthToSymbolToPrice[0]!!
