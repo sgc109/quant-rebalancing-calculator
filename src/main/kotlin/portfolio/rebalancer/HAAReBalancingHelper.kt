@@ -1,10 +1,12 @@
 package portfolio.rebalancer
 
 import kotlinx.coroutines.coroutineScope
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import kotlin.math.abs
 import kotlin.math.round
 
-class VAAReBalancingHelper(
+class HAAReBalancingHelper(
     private val stockHistoryFileManager: StockHistoryFileManager,
     private val marketDataClient: MarketDataClient,
 ) {
@@ -13,7 +15,7 @@ class VAAReBalancingHelper(
         moneyToWithdraw: Int,
         dryRun: Boolean = false,
     ): Result = coroutineScope {
-        println("You're using VAA strategy")
+        println("You're using HAA strategy")
 
         val stocksHistory = stockHistoryFileManager.loadLastStockPositionsMapFromFile()
 
@@ -21,11 +23,15 @@ class VAAReBalancingHelper(
 
         println("You are adding $additionalMoneyToDeposit USD to your portfolio!")
 
-        val baseTime = marketDataClient.getLatestMinuteBar().timestamp
+        val baseTime = ZonedDateTime.of(2023, 11, 30, 15, 0, 0, 0, ZoneId.systemDefault())
         println("baseTime: $baseTime")
 
         val pastMonthToSymbolToPrice: Map<Int, Map<String, Double>> =
-            marketDataClient.fetchPricesByPastMonth(ALL_ASSETS.toList(), SCORING_MONTHS, baseTime)
+            marketDataClient.fetchPricesByPastMonth(
+                (ALL_ASSETS + originalStocksAmountMap.keys).toList(),
+                SCORING_MONTHS,
+                baseTime,
+            )
 
         println(pastMonthToSymbolToPrice)
         val symbolToCurrentPrice = pastMonthToSymbolToPrice[0]!!
@@ -40,30 +46,34 @@ class VAAReBalancingHelper(
         val newTotalMoney = originalTotalPrice + additionalMoneyToDeposit - moneyToWithdraw
         require(newTotalMoney > 0) { "'newTotalMoney' should not be negative. Please reduce withdrawal amount." }
 
-        val cntNegativeScores = AGGRESSIVE_ASSETS.map {
-            symbolToMomentumScore[it]!!
-        }.count { it < 0 }
-
-        val defensiveInvestingRatio = cntNegativeScores.coerceAtMost(4) * 0.25
-        println("defensiveInvestingRatio: ${(defensiveInvestingRatio * 100).toInt()}%")
-
-        val defensiveAssetsBudget = newTotalMoney * defensiveInvestingRatio
-        val aggressiveAssetsBudget = newTotalMoney - defensiveAssetsBudget
-
         val aggressiveAssetsToBuy = AGGRESSIVE_ASSETS.associateWith { symbol ->
             symbolToMomentumScore[symbol]!!
-        }.entries.sortedByDescending { it.value }
+        }.entries
+            .filter { it.value > 0.0 }
+            .sortedByDescending { it.value }
             .take(CNT_AGGRESSIVE_ASSETS_TO_BUY)
             .map { it.key }
-        println("You should buy aggressive assets: $aggressiveAssetsToBuy")
 
-        val budgetForEachAggressiveAsset = aggressiveAssetsBudget / CNT_AGGRESSIVE_ASSETS_TO_BUY
+        val aggressiveAssetsBudget = if (symbolToMomentumScore[CANARY_ASSETS.first()]!! > 0) {
+            println("You should buy aggressive assets: $aggressiveAssetsToBuy")
+
+            newTotalMoney * 0.25 * aggressiveAssetsToBuy.size
+        } else {
+            0.0
+        }
+        val defensiveAssetsBudget = newTotalMoney - aggressiveAssetsBudget
+
+        val budgetForEachAggressiveAsset = if (aggressiveAssetsBudget > 0) {
+            aggressiveAssetsBudget / aggressiveAssetsToBuy.size
+        } else {
+            0.0
+        }
 
         val aggressiveAssetsAmountToBuyBySymbol = aggressiveAssetsToBuy.associateWith {
             (budgetForEachAggressiveAsset / symbolToCurrentPrice[it]!!).toInt()
         }
 
-        val defensiveAssetToBuy = if (defensiveInvestingRatio > 0) {
+        val defensiveAssetToBuy = if (defensiveAssetsBudget > 0) {
             DEFENSIVE_ASSETS.associateWith { symbol ->
                 symbolToMomentumScore[symbol]!!
             }.maxBy { it.value }.key.also {
@@ -138,8 +148,7 @@ class VAAReBalancingHelper(
             val basePrice = symbolToCurrentPrice[symbol]!!
             val pastPrice = pastMonthToSymbolToPrice[pastMonth]?.get(symbol)!!
             val earnRatio = calculateEarnRate(basePrice = basePrice, pastPrice = pastPrice)
-            val weight = 12 / pastMonth
-            earnRatio * weight
+            earnRatio
         }
     }
 
@@ -204,14 +213,22 @@ class VAAReBalancingHelper(
     }
 
     companion object {
-        const val CNT_AGGRESSIVE_ASSETS_TO_BUY = 5
+        const val CNT_AGGRESSIVE_ASSETS_TO_BUY = 4
 
         val AGGRESSIVE_ASSETS = setOf(
-            "SPY", "QQQ", "IWM", "VGK", "EWJ", "EEM", "VNQ", "GLD", "DBC", "HYG", "LQD", "TLT",
+            "SPY",
+            "IWM",
+            "VWO",
+            "VEA",
+            "VNQ",
+            "DBC",
+            "IEF",
+            "TLT",
         )
-        val DEFENSIVE_ASSETS = setOf("LQD", "IEF", "SHY")
-        val ALL_ASSETS = AGGRESSIVE_ASSETS + DEFENSIVE_ASSETS
+        val DEFENSIVE_ASSETS = setOf("IEF", "BIL")
+        val CANARY_ASSETS = setOf("TIP")
+        val ALL_ASSETS = AGGRESSIVE_ASSETS + DEFENSIVE_ASSETS + CANARY_ASSETS
 
-        val SCORING_MONTHS = listOf(1, 3, 6, 12) // 13612W 모멘텀 스코어를 계산하기 위한 months
+        val SCORING_MONTHS = listOf(1, 3, 6, 12) // 13612U 모멘텀 스코어를 계산하기 위한 months
     }
 }

@@ -19,7 +19,7 @@ class MarketDataClient {
                 symbol,
                 ZonedDateTime.now().minusWeeks(1),
                 ZonedDateTime.now(),
-                VAAReBalancingHelper.MAX_FETCH_BARS_CNT,
+                MAX_FETCH_BARS_CNT,
                 null,
                 1,
                 BarTimePeriod.MINUTE,
@@ -29,13 +29,15 @@ class MarketDataClient {
     }
 
     suspend fun fetchPricesByPastMonth(
+        symbols: List<String>,
+        scoringMonths: List<Int>,
         baseTime: ZonedDateTime,
     ): Map<Int, Map<String, Double>> = coroutineScope {
-        (listOf(0) + VAAReBalancingHelper.SCORING_MONTHS).associateWith { pastMonth ->
+        (listOf(0) + scoringMonths).associateWith { pastMonth ->
             async(Dispatchers.IO) {
                 batchGetPrices(
                     stockMarketData,
-                    VAAReBalancingHelper.ALL_ASSETS.toList(),
+                    symbols,
                     baseTime,
                     pastMonth,
                 )
@@ -59,7 +61,7 @@ class MarketDataClient {
                 symbols,
                 startDate,
                 startDate.plusDays(7),
-                VAAReBalancingHelper.MAX_FETCH_BARS_CNT,
+                MAX_FETCH_BARS_CNT,
                 null,
                 1,
                 BarTimePeriod.DAY,
@@ -69,6 +71,8 @@ class MarketDataClient {
     }
 
     companion object {
+        const val MAX_FETCH_BARS_CNT = 10000
+
         val stockMarketData: StockMarketDataEndpoint = AlpacaAPI().stockMarketData()
     }
 }
