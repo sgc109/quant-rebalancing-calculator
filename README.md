@@ -32,7 +32,7 @@ endpoint_api_type = paper
 data_api_type = iex
 ```
 
-* (Optional) 만약 VVA-Balanced 로 모두 전환하고 싶은 포트폴리오가 있다면, `src/main/resources` 내 stocks-history.yaml 파일을 생성하여 아래와같은 형식으로 보유
+* (Optional) 만약 VAA/HAA 로 모두 전환하고 싶은 기존 포트폴리오가 있다면, `src/main/resources` 내 stocks-history.yaml 파일을 생성하여 아래와같은 형식으로 보유
   주식들에 대한
   수량을 입력합니다.
 
