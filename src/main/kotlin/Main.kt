@@ -16,7 +16,7 @@ fun main() = runBlocking {
     val res = reBalancingHelper.reBalance(
         additionalMoneyToDeposit = ADDITIONAL_MONEY_TO_DEPOSIT,
         moneyToWithdraw = MONEY_TO_WITHDRAW,
-        dryRun = true,
+        // dryRun = true, // Uncomment this not to write the result to YAML file and just print it
     )
 
     res.printResult()
