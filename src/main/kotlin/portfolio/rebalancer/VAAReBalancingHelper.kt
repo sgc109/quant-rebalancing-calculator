@@ -211,7 +211,7 @@ class VAAReBalancingHelper(
         const val CNT_AGGRESSIVE_ASSETS_TO_BUY = 5
 
         val AGGRESSIVE_ASSETS = setOf(
-            "SPY", "QQQ", "IWM", "VGK", "EWJ", "EEM", "VNQ", "GLD", "DBC", "HYG", "LQD", "TLT",
+            "SPY", "QQQ", "IWM", "VGK", "EWJ", "EEM", "VNQ", "GLD", "PDBC", "HYG", "LQD", "TLT",
         )
         val DEFENSIVE_ASSETS = setOf("LQD", "IEF", "SHY")
         val ALL_ASSETS = AGGRESSIVE_ASSETS + DEFENSIVE_ASSETS

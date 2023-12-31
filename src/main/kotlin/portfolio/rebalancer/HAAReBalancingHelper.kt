@@ -221,7 +221,7 @@ class HAAReBalancingHelper(
             "VWO",
             "VEA",
             "VNQ",
-            "DBC",
+            "PDBC",
             "IEF",
             "TLT",
         )
