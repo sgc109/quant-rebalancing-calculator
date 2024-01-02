@@ -2,6 +2,7 @@ package portfolio.rebalancer
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import portfolio.rebalancer.util.Loggable
 
 class MinimumInitialBalanceSearchTest : FunSpec({
     val stockHistoryFileManager = StockHistoryFileManager()
@@ -19,7 +20,7 @@ class MinimumInitialBalanceSearchTest : FunSpec({
 
         for (additionalMoney in start..end step step) {
             if (additionalMoney % 1000 == 0) {
-                println("[progress] additionalMoney: $additionalMoney")
+                log.debug { "[progress] additionalMoney: $additionalMoney" }
             }
 
             val res =
@@ -32,7 +33,7 @@ class MinimumInitialBalanceSearchTest : FunSpec({
             res.printResult()
 
             if (res.isAllAccurateUnderPercent(unusedPercentLimit)) {
-                println("additionalMoney: $additionalMoney")
+                log.debug { "additionalMoney: $additionalMoney" }
                 found = true
                 break
             }
@@ -52,7 +53,7 @@ class MinimumInitialBalanceSearchTest : FunSpec({
 
         for (withdrawalAmount in start..end step step) {
             if (withdrawalAmount % 1000 == 0) {
-                println("[progress] withdrawalAmount: $withdrawalAmount")
+                log.debug { "[progress] withdrawalAmount: $withdrawalAmount" }
             }
 
             val res =
@@ -65,7 +66,7 @@ class MinimumInitialBalanceSearchTest : FunSpec({
             res.printResult()
 
             if (res.isAllAccurateUnderPercent(unusedPercentLimit)) {
-                println("withdrawalAmount: $withdrawalAmount")
+                log.debug { "withdrawalAmount: $withdrawalAmount" }
                 found = true
                 break
             }
@@ -73,4 +74,6 @@ class MinimumInitialBalanceSearchTest : FunSpec({
 
         found shouldBe true
     }
-})
+}) {
+    companion object : Loggable
+}

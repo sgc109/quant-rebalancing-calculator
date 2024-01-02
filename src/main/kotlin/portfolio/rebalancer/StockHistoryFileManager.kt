@@ -2,6 +2,7 @@ package portfolio.rebalancer
 
 import com.charleskorn.kaml.Yaml
 import portfolio.rebalancer.dto.StocksHistory
+import portfolio.rebalancer.util.Loggable
 import java.io.FileNotFoundException
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -18,7 +19,7 @@ class StockHistoryFileManager {
                 ?: throw FileNotFoundException()
 
         val lastChunk = yamlString.split("---\n").last()
-        println(lastChunk)
+        log.debug { lastChunk }
 
         return if (lastChunk.isNotBlank()) {
             Yaml.default.decodeFromString(StocksHistory.serializer(), lastChunk)
@@ -50,7 +51,7 @@ class StockHistoryFileManager {
                         "  $symbol: $amount"
                     },
                 )
-        println(stringToAppendOnFile)
+        log.debug { stringToAppendOnFile }
 
         Files.write(
             Paths.get("src/main/resources", "stocks-history.yaml"),
@@ -58,4 +59,6 @@ class StockHistoryFileManager {
             StandardOpenOption.APPEND,
         )
     }
+
+    companion object : Loggable
 }

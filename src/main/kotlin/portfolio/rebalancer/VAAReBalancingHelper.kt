@@ -1,6 +1,7 @@
 package portfolio.rebalancer
 
 import kotlinx.coroutines.coroutineScope
+import portfolio.rebalancer.util.Loggable
 import kotlin.math.abs
 import kotlin.math.round
 
@@ -13,17 +14,17 @@ class VAAReBalancingHelper(
         moneyToWithdraw: Int,
         dryRun: Boolean = false,
     ): Result = coroutineScope {
-        println("You're using VAA strategy")
+        log.debug { "You're using VAA strategy" }
 
         val stocksHistory = stockHistoryFileManager.loadLastStockPositionsMapFromFile()
 
         val originalStocksAmountMap: Map<String, Int> = stocksHistory?.stocks ?: emptyMap()
 
-        println("You are adding $additionalMoneyToDeposit USD to your portfolio!")
-        println("You are withdrawing $moneyToWithdraw USD to your portfolio!")
+        log.debug { "You are adding $additionalMoneyToDeposit USD to your portfolio!" }
+        log.debug { "You are withdrawing $moneyToWithdraw USD to your portfolio!" }
 
         val baseTime = marketDataClient.getLatestMinuteBar().timestamp
-        println("baseTime: $baseTime")
+        log.debug { "baseTime: $baseTime" }
 
         val pastMonthToSymbolToPrice: Map<Int, Map<String, Double>> =
             marketDataClient.fetchPricesByPastMonth(
@@ -32,12 +33,12 @@ class VAAReBalancingHelper(
                 baseTime,
             )
 
-        println(pastMonthToSymbolToPrice)
+        log.debug { pastMonthToSymbolToPrice }
         val symbolToCurrentPrice = pastMonthToSymbolToPrice[0]!!
 
         val symbolToMomentumScore = calculateMomentumScores(symbolToCurrentPrice, pastMonthToSymbolToPrice)
 
-        println(symbolToMomentumScore)
+        log.debug { symbolToMomentumScore }
 
         val originalTotalPrice = originalStocksAmountMap.map {
             symbolToCurrentPrice[it.key]!! * it.value
@@ -50,7 +51,7 @@ class VAAReBalancingHelper(
         }.count { it < 0 }
 
         val defensiveInvestingRatio = cntNegativeScores.coerceAtMost(4) * 0.25
-        println("defensiveInvestingRatio: ${(defensiveInvestingRatio * 100).toInt()}%")
+        log.debug { "defensiveInvestingRatio: ${(defensiveInvestingRatio * 100).toInt()}%" }
 
         val defensiveAssetsBudget = newTotalMoney * defensiveInvestingRatio
         val aggressiveAssetsBudget = newTotalMoney - defensiveAssetsBudget
@@ -60,7 +61,7 @@ class VAAReBalancingHelper(
         }.entries.sortedByDescending { it.value }
             .take(CNT_AGGRESSIVE_ASSETS_TO_BUY)
             .map { it.key }
-        println("You should buy aggressive assets: $aggressiveAssetsToBuy")
+        log.debug { "You should buy aggressive assets: $aggressiveAssetsToBuy" }
 
         val budgetForEachAggressiveAsset = aggressiveAssetsBudget / CNT_AGGRESSIVE_ASSETS_TO_BUY
 
@@ -72,10 +73,10 @@ class VAAReBalancingHelper(
             DEFENSIVE_ASSETS.associateWith { symbol ->
                 symbolToMomentumScore[symbol]!!
             }.maxBy { it.value }.key.also {
-                println("You should buy defensive assets: $it")
+                log.debug { "You should buy defensive assets: $it" }
             }
         } else {
-            println("You shouldn't buy any defensive assets")
+            log.debug { "You shouldn't buy any defensive assets" }
             null
         }
 
@@ -156,9 +157,9 @@ class VAAReBalancingHelper(
         allAssets.forEach { symbol ->
             val diff = (resultAmountsBySymbol[symbol] ?: 0) - (originalStocksAmountMap[symbol] ?: 0)
             if (diff > 0) {
-                println("Buy $symbol by $diff!")
+                log.debug { "Buy $symbol by $diff!" }
             } else if (diff < 0) {
-                println("Sell $symbol by ${abs(diff)}!")
+                log.debug { "Sell $symbol by ${abs(diff)}!" }
             }
         }
     }
@@ -197,10 +198,10 @@ class VAAReBalancingHelper(
     ) {
         fun printResult() {
             unusedPercentages.forEach {
-                println("unused money percent(${it.key}): ${it.value}%")
+                log.debug { "unused money percent(${it.key}): ${it.value}%" }
             }
 
-            println("total unusedMoney: $totalUnusedPercentage%")
+            log.debug { "total unusedMoney: $totalUnusedPercentage%" }
         }
 
         fun isAllAccurateUnderPercent(percent: Int): Boolean {
@@ -208,7 +209,7 @@ class VAAReBalancingHelper(
         }
     }
 
-    companion object {
+    companion object : Loggable {
         const val CNT_AGGRESSIVE_ASSETS_TO_BUY = 5
 
         val AGGRESSIVE_ASSETS = setOf(
