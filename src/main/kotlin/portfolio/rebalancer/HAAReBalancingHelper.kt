@@ -22,6 +22,7 @@ class HAAReBalancingHelper(
         val originalStocksAmountMap: Map<String, Int> = stocksHistory?.stocks ?: emptyMap()
 
         println("You are adding $additionalMoneyToDeposit USD to your portfolio!")
+        println("You are withdrawing $moneyToWithdraw USD to your portfolio!")
 
         val baseTime = ZonedDateTime.of(2023, 11, 30, 15, 0, 0, 0, ZoneId.systemDefault())
         println("baseTime: $baseTime")

@@ -20,6 +20,7 @@ class VAAReBalancingHelper(
         val originalStocksAmountMap: Map<String, Int> = stocksHistory?.stocks ?: emptyMap()
 
         println("You are adding $additionalMoneyToDeposit USD to your portfolio!")
+        println("You are withdrawing $moneyToWithdraw USD to your portfolio!")
 
         val baseTime = marketDataClient.getLatestMinuteBar().timestamp
         println("baseTime: $baseTime")

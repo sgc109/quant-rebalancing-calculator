@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldBe
 class MinimumInitialBalanceSearchTest : FunSpec({
     val stockHistoryFileManager = StockHistoryFileManager()
     val marketDataClient = MarketDataClient()
-    val reBalancingHelper = VAAReBalancingHelper(stockHistoryFileManager, marketDataClient)
+    val reBalancingHelper = HAAReBalancingHelper(stockHistoryFileManager, marketDataClient)
 
     test("모든 자산 분배 비율에 미사용 금액의 비율이 10% 미만인 최소 추가 투입 비용 찾기") {
         var found = false
@@ -48,7 +48,7 @@ class MinimumInitialBalanceSearchTest : FunSpec({
         val start = 0
         val end = 20000
         val step = 100
-        val unusedPercentLimit = 10
+        val unusedPercentLimit = 5
 
         for (withdrawalAmount in start..end step step) {
             if (withdrawalAmount % 1000 == 0) {
