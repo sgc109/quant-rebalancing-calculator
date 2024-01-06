@@ -151,7 +151,7 @@ class HAAReBalancingHelper(
             val pastPrice = pastMonthToSymbolToPrice[pastMonth]?.get(symbol)!!
             val earnRatio = calculateEarnRate(basePrice = basePrice, pastPrice = pastPrice)
             earnRatio
-        }
+        } / SCORING_MONTHS.size
     }
 
     private fun printWhatToBuyAndSell(
@@ -194,7 +194,7 @@ class HAAReBalancingHelper(
     }
 
     private fun calculateEarnRate(basePrice: Double, pastPrice: Double): Double {
-        return basePrice / pastPrice
+        return basePrice / pastPrice - 1.0
     }
 
     data class Result(

@@ -146,7 +146,7 @@ class VAAReBalancingHelper(
             val earnRatio = calculateEarnRate(basePrice = basePrice, pastPrice = pastPrice)
             val weight = 12 / pastMonth
             earnRatio * weight
-        }
+        } / SCORING_MONTHS.size
     }
 
     private fun printWhatToBuyAndSell(
@@ -189,7 +189,7 @@ class VAAReBalancingHelper(
     }
 
     private fun calculateEarnRate(basePrice: Double, pastPrice: Double): Double {
-        return basePrice / pastPrice
+        return basePrice / pastPrice - 1.0
     }
 
     data class Result(
