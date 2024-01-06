@@ -76,6 +76,6 @@ stocks:
 * 테스트 작성
   * 주요 엣지 케이스에 대해 테스트 작성
   * 코드를 확실하게 검증하기 위해 Property Testing 으로 예상하지 못한 입력에 대해 예외가 발생하지는 않는지 테스트
-* 자동매매 기능 추가
 * AWS Lambda, S3 등을 통해 정해진 주기마다 자동 리밸런싱 및 히스토리 기록 & 카톡으로 성공/실패 알림
-* 손쉽게 백트래킹을 할 수 있는 [Kotlin Notebook](https://kotlinlang.org/docs/data-science-overview.html#kotlin-notebook) 추가
+* 손쉽게 백테스팅을 할 수 있는 [Kotlin Notebook](https://kotlinlang.org/docs/data-science-overview.html#kotlin-notebook) 추가
+* 자동매매 기능 추가
