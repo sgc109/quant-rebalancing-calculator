@@ -2,8 +2,6 @@ package portfolio.rebalancer
 
 import kotlinx.coroutines.coroutineScope
 import portfolio.rebalancer.util.Loggable
-import java.time.ZoneId
-import java.time.ZonedDateTime
 import kotlin.math.abs
 import kotlin.math.round
 
@@ -25,7 +23,7 @@ class HAAReBalancingHelper(
         log.debug { "You are adding $additionalMoneyToDeposit USD to your portfolio!" }
         log.debug { "You are withdrawing $moneyToWithdraw USD to your portfolio!" }
 
-        val baseTime = ZonedDateTime.of(2023, 11, 30, 15, 0, 0, 0, ZoneId.systemDefault())
+        val baseTime = marketDataClient.getLatestMinuteBar().timestamp
         log.debug { "baseTime: $baseTime" }
 
         val pastMonthToSymbolToPrice: Map<Int, Map<String, Double>> =
@@ -40,7 +38,7 @@ class HAAReBalancingHelper(
 
         val symbolToMomentumScore = calculateMomentumScores(symbolToCurrentPrice, pastMonthToSymbolToPrice)
 
-        log.debug { symbolToMomentumScore }
+        log.debug { "symbolToMomentumScore=$symbolToMomentumScore" }
 
         val originalTotalPrice = originalStocksAmountMap.map {
             symbolToCurrentPrice[it.key]!! * it.value
