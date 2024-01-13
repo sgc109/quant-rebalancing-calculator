@@ -5,7 +5,10 @@ enum class Asset {
     EFA, // iShares MSCI EAFE ETF
     EEM, // iShares MSCI Emerging Markets ETF
     IEF, // iShares 7-10 Year Treasury Bond ETF
+    VWO, // Vanguard FTSE Emerging Markets ETF
+    VEA, // Vanguard FTSE Developed Markets ETF
     IWM, // iShares Russell 2000 ETF
+    DBC, // Invesco DB Commodity Index Tracking Fund
     PDBC, // Invesco Optimum Yield Diversified Commodity Strategy No K-1 ETF
     QQQ, // Invesco QQQ Trust
     SPY, // SPDR S&P 500 ETF Trust

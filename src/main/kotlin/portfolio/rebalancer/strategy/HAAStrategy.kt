@@ -1,19 +1,19 @@
 package portfolio.rebalancer.strategy
 
+import portfolio.rebalancer.ClosestDateTimeFinder
 import portfolio.rebalancer.dto.Asset
 import portfolio.rebalancer.dto.Asset.BIL
+import portfolio.rebalancer.dto.Asset.DBC
 import portfolio.rebalancer.dto.Asset.EEM
 import portfolio.rebalancer.dto.Asset.EFA
 import portfolio.rebalancer.dto.Asset.IEF
 import portfolio.rebalancer.dto.Asset.IWM
-import portfolio.rebalancer.dto.Asset.PDBC
 import portfolio.rebalancer.dto.Asset.SPY
 import portfolio.rebalancer.dto.Asset.TIP
 import portfolio.rebalancer.dto.Asset.TLT
 import portfolio.rebalancer.dto.Asset.VNQ
 import portfolio.rebalancer.dto.SymbolPricesByDate
 import portfolio.rebalancer.dto.toAssetShares
-import portfolio.rebalancer.util.ClosestDateTimeFinder
 import java.time.Period
 import java.time.ZonedDateTime
 
@@ -40,7 +40,10 @@ class HAAStrategy : Strategy {
             }
         }
         val symbolToMomentumScore = calculateMomentumScores(pastMonthToSymbolToPrice)
-        val symbolToCurrentPrice = pricesInfo.value.keys.max().let { pricesInfo.value[it]!! }
+        val symbolToCurrentPrice = ClosestDateTimeFinder.findClosestDate(
+            baseTime = baseTime,
+            pricesInfo.value.keys.toList(),
+        ).let { pricesInfo.value[it]!! }
 
         println("symbolToMomentumScore=$symbolToMomentumScore")
 
@@ -68,6 +71,9 @@ class HAAStrategy : Strategy {
         }
 
         val aggressiveAssetSharesToBuy = aggressiveAssetsToBuy.associateWith {
+            if (!symbolToCurrentPrice.containsKey(it)) {
+                println("HI")
+            }
             (budgetForEachAggressiveAsset / symbolToCurrentPrice[it]!!).toLong()
         }.toAssetShares()
 
@@ -100,6 +106,7 @@ class HAAStrategy : Strategy {
             targetBuyMoneyPerAsset = defensiveAssetToBuy?.let {
                 aggressiveAssetsTargetBuyPrice + (it to defensiveAssetsBudget)
             } ?: aggressiveAssetsTargetBuyPrice,
+            unusedMoney = budget - resultAmountsBySymbol.value.entries.sumOf { symbolToCurrentPrice[it.key]!! * it.value },
         )
     }
 
@@ -111,6 +118,12 @@ class HAAStrategy : Strategy {
         return allAssets.associateWith { symbol ->
             requiredPastMonths.sumOf { pastMonth ->
                 val basePrice = symbolToCurrentPrice[symbol]!!
+                if (!pastMonthToSymbolToPrice.containsKey(pastMonth)) {
+                    println("symbol=$symbol, pastMonth=$pastMonth")
+                }
+                if (!pastMonthToSymbolToPrice[pastMonth]!!.containsKey(symbol)) {
+                    println("symbol=$symbol, pastMonth=$pastMonth")
+                }
                 val pastPrice = pastMonthToSymbolToPrice[pastMonth]?.get(symbol)!!
                 val earnRatio = calculateEarnRate(basePrice = basePrice, pastPrice = pastPrice)
                 earnRatio
@@ -125,7 +138,7 @@ class HAAStrategy : Strategy {
     companion object {
         private const val CNT_AGGRESSIVE_ASSETS_TO_BUY = 4
 
-        private val AGGRESSIVE_ASSETS = setOf(SPY, IWM, EFA, EEM, VNQ, PDBC, IEF, TLT)
+        private val AGGRESSIVE_ASSETS = setOf(SPY, IWM, EFA, EEM, VNQ, DBC, IEF, TLT)
         private val DEFENSIVE_ASSETS = setOf(IEF, BIL)
         private val CANARY_ASSETS = setOf(TIP)
     }

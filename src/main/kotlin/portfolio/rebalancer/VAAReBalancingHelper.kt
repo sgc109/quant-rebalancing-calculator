@@ -1,13 +1,13 @@
 package portfolio.rebalancer
 
 import kotlinx.coroutines.coroutineScope
-import portfolio.rebalancer.dto.Asset
 import portfolio.rebalancer.io.MarketDataClient
 import portfolio.rebalancer.io.StockHistoryFileManager
 import portfolio.rebalancer.util.Loggable
 import kotlin.math.abs
 import kotlin.math.round
 
+@Deprecated("Write new class which is a subclass of Strategy following HAAStrategy")
 class VAAReBalancingHelper(
     private val stockHistoryFileManager: StockHistoryFileManager,
     private val marketDataClient: MarketDataClient,

@@ -20,5 +20,6 @@ interface Strategy {
     data class Result(
         val assetShares: AssetShares,
         val targetBuyMoneyPerAsset: Map<Asset, Double>,
+        val unusedMoney: Double,
     )
 }

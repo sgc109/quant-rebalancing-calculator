@@ -1,15 +1,15 @@
-package portfolio.rebalancer.util
+package portfolio.rebalancer
 
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
 object ClosestDateTimeFinder {
     fun findClosestDate(
-        baseDate: ZonedDateTime,
+        baseTime: ZonedDateTime,
         dates: List<ZonedDateTime>,
     ): ZonedDateTime {
         val sortedDates = dates.sorted()
-        val res = sortedDates.binarySearch(baseDate)
+        val res = sortedDates.binarySearch(baseTime)
         if (res >= 0) {
             return sortedDates[res]
         }
@@ -17,7 +17,7 @@ object ClosestDateTimeFinder {
         if (idx >= sortedDates.size) {
             throw NoSuchElementException("No closest date found")
         }
-        if (ChronoUnit.DAYS.between(baseDate, sortedDates[idx]) > 4) {
+        if (ChronoUnit.DAYS.between(baseTime, sortedDates[idx]) > 4) {
             throw NoSuchElementException("No closest date found")
         }
         return sortedDates[idx]
