@@ -1,6 +1,9 @@
 package portfolio.rebalancer
 
 import kotlinx.coroutines.coroutineScope
+import portfolio.rebalancer.dto.Asset
+import portfolio.rebalancer.io.MarketDataClient
+import portfolio.rebalancer.io.StockHistoryFileManager
 import portfolio.rebalancer.util.Loggable
 import kotlin.math.abs
 import kotlin.math.round
@@ -14,31 +17,31 @@ class VAAReBalancingHelper(
         moneyToWithdraw: Int,
         dryRun: Boolean = false,
     ): Result = coroutineScope {
-        log.debug { "You're using VAA strategy" }
+        println("You're using VAA strategy")
 
         val stocksHistory = stockHistoryFileManager.loadLastStockPositionsMapFromFile()
 
         val originalStocksAmountMap: Map<String, Int> = stocksHistory?.stocks ?: emptyMap()
 
-        log.debug { "You are adding $additionalMoneyToDeposit USD to your portfolio!" }
-        log.debug { "You are withdrawing $moneyToWithdraw USD to your portfolio!" }
+        println("You are adding $additionalMoneyToDeposit USD to your portfolio!")
+        println("You are withdrawing $moneyToWithdraw USD to your portfolio!")
 
         val baseTime = marketDataClient.getLatestMinuteBar().timestamp
-        log.debug { "baseTime: $baseTime" }
+        println("baseTime: $baseTime")
 
         val pastMonthToSymbolToPrice: Map<Int, Map<String, Double>> =
-            marketDataClient.fetchPricesByPastMonth(
+            marketDataClient.legacyFetchPricesByPastMonth(
                 (ALL_ASSETS + originalStocksAmountMap.keys).toList(),
                 SCORING_MONTHS,
                 baseTime,
             )
 
-        log.debug { pastMonthToSymbolToPrice }
+        println(pastMonthToSymbolToPrice)
         val symbolToCurrentPrice = pastMonthToSymbolToPrice[0]!!
 
         val symbolToMomentumScore = calculateMomentumScores(symbolToCurrentPrice, pastMonthToSymbolToPrice)
 
-        log.debug { symbolToMomentumScore }
+        println(symbolToMomentumScore)
 
         val originalTotalPrice = originalStocksAmountMap.map {
             symbolToCurrentPrice[it.key]!! * it.value
@@ -51,7 +54,7 @@ class VAAReBalancingHelper(
         }.count { it < 0 }
 
         val defensiveInvestingRatio = cntNegativeScores.coerceAtMost(4) * 0.25
-        log.debug { "defensiveInvestingRatio: ${(defensiveInvestingRatio * 100).toInt()}%" }
+        println("defensiveInvestingRatio: ${(defensiveInvestingRatio * 100).toInt()}%")
 
         val defensiveAssetsBudget = newTotalMoney * defensiveInvestingRatio
         val aggressiveAssetsBudget = newTotalMoney - defensiveAssetsBudget
@@ -61,7 +64,7 @@ class VAAReBalancingHelper(
         }.entries.sortedByDescending { it.value }
             .take(CNT_AGGRESSIVE_ASSETS_TO_BUY)
             .map { it.key }
-        log.debug { "You should buy aggressive assets: $aggressiveAssetsToBuy" }
+        println("You should buy aggressive assets: $aggressiveAssetsToBuy")
 
         val budgetForEachAggressiveAsset = aggressiveAssetsBudget / CNT_AGGRESSIVE_ASSETS_TO_BUY
 
@@ -73,10 +76,10 @@ class VAAReBalancingHelper(
             DEFENSIVE_ASSETS.associateWith { symbol ->
                 symbolToMomentumScore[symbol]!!
             }.maxBy { it.value }.key.also {
-                log.debug { "You should buy defensive assets: $it" }
+                println("You should buy defensive assets: $it")
             }
         } else {
-            log.debug { "You shouldn't buy any defensive assets" }
+            println("You shouldn't buy any defensive assets")
             null
         }
 
@@ -123,7 +126,7 @@ class VAAReBalancingHelper(
         printWhatToBuyAndSell(ALL_ASSETS, resultAmountsBySymbol, originalStocksAmountMap)
 
         if (!dryRun) {
-            stockHistoryFileManager.writeNewStockPositionsToFile(
+            stockHistoryFileManager.legacyWriteNewStockPositionsToFile(
                 isFirstPosition = stocksHistory == null,
                 resultAmountsBySymbol,
                 additionalMoneyToDeposit,
@@ -157,9 +160,9 @@ class VAAReBalancingHelper(
         allAssets.forEach { symbol ->
             val diff = (resultAmountsBySymbol[symbol] ?: 0) - (originalStocksAmountMap[symbol] ?: 0)
             if (diff > 0) {
-                log.debug { "Buy $symbol by $diff!" }
+                println("Buy $symbol by $diff!")
             } else if (diff < 0) {
-                log.debug { "Sell $symbol by ${abs(diff)}!" }
+                println("Sell $symbol by ${abs(diff)}!")
             }
         }
     }
@@ -198,10 +201,10 @@ class VAAReBalancingHelper(
     ) {
         fun printResult() {
             unusedPercentages.forEach {
-                log.debug { "unused money percent(${it.key}): ${it.value}%" }
+                println("unused money percent(${it.key}): ${it.value}%")
             }
 
-            log.debug { "total unusedMoney: $totalUnusedPercentage%" }
+            println("total unusedMoney: $totalUnusedPercentage%")
         }
 
         fun isAllAccurateUnderPercent(percent: Int): Boolean {

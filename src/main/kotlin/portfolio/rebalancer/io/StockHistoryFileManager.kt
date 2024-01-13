@@ -1,6 +1,7 @@
-package portfolio.rebalancer
+package portfolio.rebalancer.io
 
 import com.charleskorn.kaml.Yaml
+import portfolio.rebalancer.dto.Asset
 import portfolio.rebalancer.dto.StocksHistory
 import portfolio.rebalancer.util.Loggable
 import java.io.FileNotFoundException
@@ -19,7 +20,7 @@ class StockHistoryFileManager {
                 ?: throw FileNotFoundException()
 
         val lastChunk = yamlString.split("---\n").last()
-        log.debug { lastChunk }
+        println(lastChunk)
 
         return if (lastChunk.isNotBlank()) {
             Yaml.default.decodeFromString(StocksHistory.serializer(), lastChunk)
@@ -28,9 +29,20 @@ class StockHistoryFileManager {
         }
     }
 
-    fun writeNewStockPositionsToFile(
+    @Deprecated("Use writeNewStockPositionsToFile instead")
+    fun legacyWriteNewStockPositionsToFile(
         isFirstPosition: Boolean,
         resultAmountsBySymbol: Map<String, Int>,
+        additionalMoneyToDeposit: Int,
+    ) = writeNewStockPositionsToFile(
+        isFirstPosition,
+        resultAmountsBySymbol.mapKeys { Asset.valueOf(it.key) }.mapValues { it.value.toLong() },
+        additionalMoneyToDeposit,
+    )
+
+    fun writeNewStockPositionsToFile(
+        isFirstPosition: Boolean,
+        resultAmountsBySymbol: Map<Asset, Long>,
         additionalMoneyToDeposit: Int,
     ) {
         val prefixDashes = if (isFirstPosition) {
@@ -51,7 +63,7 @@ class StockHistoryFileManager {
                         "  $symbol: $amount"
                     },
                 )
-        log.debug { stringToAppendOnFile }
+        println(stringToAppendOnFile)
 
         Files.write(
             Paths.get("src/main/resources", "stocks-history.yaml"),

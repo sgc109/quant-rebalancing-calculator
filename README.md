@@ -1,6 +1,7 @@
 # quant-rebalancing-calculator
 
-잘 알려진 동적 자산배분 전략인 VAA(Vigilant Asset Allocation)([Paper](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3002624)), HAA(Hybrid Asset Allocation)([Paper](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4346906))
+잘 알려진 동적 자산배분 전략인 VAA(Vigilant Asset Allocation)([Paper](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3002624)),
+HAA(Hybrid Asset Allocation)([Paper](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4346906))
 포트폴리오의
 리밸런싱을 쉽게 할 수 있게 도와주는 코드입니다.
 
@@ -71,11 +72,10 @@ stocks:
 ## 향후 개발 방향성
 
 * 다른 포트폴리오도 지원
-    * (e.g. 60/40, Permanent Portfolio, 올시즌, 올웨더, GAA, PAA, DAA, LAA, BAA, ABAA, ...)
-* 리팩터링(여러가지 포트폴리오를 쉽게 요리조리 조립할 수 있도록 공통 코드를 분리하고 class hierarchy 를 잘 구성)
+    * Classic Portfolio, Permanent Portfolio, All Seasons, All Weather, GAA, PAA, DAA, LAA, BAA, ABAA, ...
 * 테스트 작성
-  * 주요 엣지 케이스에 대해 테스트 작성
-  * 코드를 확실하게 검증하기 위해 Property Testing 으로 예상하지 못한 입력에 대해 예외가 발생하지는 않는지 테스트
-* AWS Lambda, S3 등을 통해 정해진 주기마다 자동 리밸런싱 및 히스토리 기록 & 카톡으로 성공/실패 알림
+    * 주요 엣지 케이스에 대해 테스트 작성
+    * 코드를 확실하게 검증하기 위해 Property Testing 으로 예상하지 못한 입력에 대해 예외가 발생하지는 않는지 테스트
+* AWS Lambda + S3, 또는 Github Actions 등을 통해 정해진 주기마다 자동 리밸런싱 및 히스토리 기록 & 카톡으로 성공/실패 알림
 * 손쉽게 백테스팅을 할 수 있는 [Kotlin Notebook](https://kotlinlang.org/docs/data-science-overview.html#kotlin-notebook) 추가
 * 자동매매 기능 추가

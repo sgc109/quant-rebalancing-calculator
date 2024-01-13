@@ -2,12 +2,18 @@ package portfolio.rebalancer
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import portfolio.rebalancer.util.Loggable
+import portfolio.rebalancer.io.MarketDataClient
+import portfolio.rebalancer.io.StockHistoryFileManager
+import portfolio.rebalancer.strategy.HAAStrategy
 
 class MinimumInitialBalanceSearchTest : FunSpec({
     val stockHistoryFileManager = StockHistoryFileManager()
     val marketDataClient = MarketDataClient()
-    val reBalancingHelper = HAAReBalancingHelper(stockHistoryFileManager, marketDataClient)
+    val haaReBalancingRunner = ReBalancingRunner(
+        stockHistoryFileManager,
+        marketDataClient,
+        strategy = HAAStrategy(),
+    )
 
     test("모든 자산 분배 비율에 미사용 금액의 비율이 10% 미만인 최소 추가 투입 비용 찾기") {
         var found = false
@@ -20,11 +26,11 @@ class MinimumInitialBalanceSearchTest : FunSpec({
 
         for (additionalMoney in start..end step step) {
             if (additionalMoney % 1000 == 0) {
-                log.debug { "[progress] additionalMoney: $additionalMoney" }
+                println("[progress] additionalMoney: $additionalMoney")
             }
 
             val res =
-                reBalancingHelper.reBalance(
+                haaReBalancingRunner.reBalance(
                     additionalMoneyToDeposit = additionalMoney,
                     moneyToWithdraw = 0,
                     dryRun = true,
@@ -33,7 +39,7 @@ class MinimumInitialBalanceSearchTest : FunSpec({
             res.printResult()
 
             if (res.isAllAccurateUnderPercent(unusedPercentLimit)) {
-                log.debug { "additionalMoney: $additionalMoney" }
+                println("additionalMoney: $additionalMoney")
                 found = true
                 break
             }
@@ -53,11 +59,11 @@ class MinimumInitialBalanceSearchTest : FunSpec({
 
         for (withdrawalAmount in start..end step step) {
             if (withdrawalAmount % 1000 == 0) {
-                log.debug { "[progress] withdrawalAmount: $withdrawalAmount" }
+                println("[progress] withdrawalAmount: $withdrawalAmount")
             }
 
             val res =
-                reBalancingHelper.reBalance(
+                haaReBalancingRunner.reBalance(
                     additionalMoneyToDeposit = 0,
                     moneyToWithdraw = withdrawalAmount,
                     dryRun = true,
@@ -66,7 +72,7 @@ class MinimumInitialBalanceSearchTest : FunSpec({
             res.printResult()
 
             if (res.isAllAccurateUnderPercent(unusedPercentLimit)) {
-                log.debug { "withdrawalAmount: $withdrawalAmount" }
+                println("withdrawalAmount: $withdrawalAmount")
                 found = true
                 break
             }
@@ -74,6 +80,4 @@ class MinimumInitialBalanceSearchTest : FunSpec({
 
         found shouldBe true
     }
-}) {
-    companion object : Loggable
-}
+})
