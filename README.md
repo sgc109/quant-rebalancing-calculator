@@ -56,11 +56,11 @@ stocks:
 
 ### Practical use
 
-* 매달 1회 리밸런싱을 해야하는 시점에 Main.kt 를 실행합니다.
-    * 파일 최상단에 있는 `ADDITIONAL_MONEY_TO_DEPOSIT` 상수를 내가 이번 리밸런싱에 추가로 투자할 금액(USD 기준)으로 수정합니다.
-    * 파일 최상단에 있는 `MONEY_TO_WITHDRAW` 상수를 내가 이번 리밸런싱에 회수할 금액(USD 기준)으로 수정합니다.
-    * `reBalancingHelper`를 생성하는 부분에서 원하는 전략의 ReBalancingHelper 객체를 생성하도록 수정합니다.
-* 출력 결과 또는 stocks-history.yaml 파일 마지막에 추가된 부분을 참고하여 직접 HTS 에서 주식을 매수/매도합니다.
+* Execute Main.kt at the point where monthly rebalancing is required.
+  * Modify the ADDITIONAL_MONEY_TO_DEPOSIT constant at the top of the file to the amount (in USD) you intend to invest additionally in this rebalancing.
+  * Modify the MONEY_TO_WITHDRAW constant at the top of the file to the amount (in USD) you plan to withdraw in this rebalancing.
+  * (Deprecated) <strike>Adjust the creation of the reBalancingHelper to instantiate the ReBalancingHelper object for the desired strategy.</strike> It will be supported soon.
+* Refer to the output results or the section appended at the end of the stocks-history.yaml file and directly buy/sell stocks in your HTS(Home Trading System).
 
 ## Caution
 
@@ -72,7 +72,7 @@ stocks:
 ## Future Development
 
 * (WIP) Introduction of Kotlin Notebook for Easy Backtesting
-  * Add a Kotlin Notebook to facilitate easy backtesting, leveraging the capabilities provided by Kotlin Notebook.
+  * Add a [Kotlin Notebook](https://kotlinlang.org/docs/data-science-overview.html#kotlin-notebook) to facilitate easy backtesting, leveraging the capabilities provided by Kotlin Notebook.
 * Support for Different Portfolios
   * Classic Portfolio, Permanent Portfolio, All Seasons, All Weather, GAA, PAA, DAA, LAA, BAA, ABAA, and more will be supported.
 * Test Coverage
