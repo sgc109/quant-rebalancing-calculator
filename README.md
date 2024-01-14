@@ -1,21 +1,21 @@
 # quant-rebalancing-calculator
 
-잘 알려진 동적 자산배분 전략인 VAA(Vigilant Asset Allocation)([Paper](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3002624)),
-HAA(Hybrid Asset Allocation)([Paper](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4346906))
-포트폴리오의
-리밸런싱을 쉽게 할 수 있게 도와주는 코드입니다.
+This code facilitates the easy rebalancing of portfolios following well-known dynamic asset allocation strategies such
+as VAA(Vigilant Asset Allocation)([Paper](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3002624)) and HAA(Hybrid
+Asset Allocation)([Paper](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4346906))
 
-VAA는 1973년부터 2021년까지 12.6% 의 연 복리 수익률(CAGR)과 -10.2% 의 최대 손실률(MDD)을 기록하는 매우 강력한 동적 자산배분 전략이지만(VAA-G12 기준), 총 14가지 ETF 의
-13612W 모멘텀 스코어를 계산해야 하기 때문에 매번 직접 계산하기가 매우 번거롭습니다. HAA 는 10가지 자산의 13612U 스코어를 계산해야해서 번거롭기는 마찬가지입니다.
-본 코드는 이러한 불편함을 해소하기 위해 계산을 자동화하여 특정 포트폴리오를 기준으로 리밸런싱 시 어떤 자산을 얼만큼 사고 팔아야하는지 알려줍니다.
+VAA is a highly potent dynamic asset allocation strategy, recording an impressive Compound Annual Growth Rate (CAGR) of
+12.6% and a maximum drawdown (MDD) of -10.2% from 1973 to 2021 (based on VAA-G12). However, due to the need to calculate
+momentum scores for a total of 14 ETFs, the process of manual calculation can be quite cumbersome. Similarly, HAA also
+involves the calculation of 13612U scores for 10 different assets, adding to the complexity. This code addresses such
+inconveniences by automating the calculations, providing guidance on how much to buy and sell for a specific portfolio
+when rebalancing.
 
 ## 동작 방식
 
-* [Alpaca](https://alpaca.markets/) 의 Market Data API 의 Free Tier 를 사용하여 15분 지연된 주가 정보를 가져옵니다.
-* stocks-history.yaml 에 리밸런싱하는 시점마다 리밸런싱 결과(날짜, 추가 투자 금액, 종목 별 주식 수량)를 기록하며, 프로그램 실행 시 마지막 기록을 기반으로 계산하여 어떤 종목을 얼마나
-  사야하는지, 혹은
-  팔아야하는지 알려주고 결과를 파일 끝에 기록합니다.
-* 지원하는 모든 전략들의 종목은 모두 미국 ETF 이기 때문에 모든 가격은 USD 를 기준으로 합니다.
+* Utilizing the Free Tier of the [Alpaca](https://alpaca.markets/) Market Data API, the program fetches stock prices with a 15-minute delay at most.
+* The rebalancing results (date, additional investment amount, quantity of stocks per asset) are recorded in the stocks-history.yaml file at each rebalancing point. During program execution, it calculates and advises on the quantity to buy or sell for each asset based on the last recorded information, appending the results to the end of the file.
+* Since all supported strategies involve U.S. ETFs, prices are denominated in USD.
 * 모멘텀 스코어 계산 시 현재를 기점으로 가장 마지막 분봉이 생성된 시간을 현재로 간주하며, 정확히 1개월, 3개월, 6개월, 12개월 전 분봉의 종가를 기준으로 수익률을 계산합니다.
 
 ## 사용법
