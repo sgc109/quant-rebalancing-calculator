@@ -18,9 +18,9 @@ when rebalancing.
 * Since all supported strategies involve U.S. ETFs, prices are denominated in USD.
 * 모멘텀 스코어 계산 시 현재를 기점으로 가장 마지막 분봉이 생성된 시간을 현재로 간주하며, 정확히 1개월, 3개월, 6개월, 12개월 전 분봉의 종가를 기준으로 수익률을 계산합니다.
 
-## 사용법
+## Usage
 
-### 사전 세팅
+### Preparation
 
 * `src/main/resources` 내 alpaca.properties 파일을 생성합니다.
 * alpaca.properties 에 다음과 같은 형식으로 Alpaca API Key, Secret Key 를 입력합니다.
@@ -54,7 +54,7 @@ stocks:
   TLT: 3
 ```
 
-### 실전 사용
+### Practical use
 
 * 매달 1회 리밸런싱을 해야하는 시점에 Main.kt 를 실행합니다.
     * 파일 최상단에 있는 `ADDITIONAL_MONEY_TO_DEPOSIT` 상수를 내가 이번 리밸런싱에 추가로 투자할 금액(USD 기준)으로 수정합니다.
@@ -62,7 +62,7 @@ stocks:
     * `reBalancingHelper`를 생성하는 부분에서 원하는 전략의 ReBalancingHelper 객체를 생성하도록 수정합니다.
 * 출력 결과 또는 stocks-history.yaml 파일 마지막에 추가된 부분을 참고하여 직접 HTS 에서 주식을 매수/매도합니다.
 
-## 주의사항
+## Caution
 
 * stocks-history.yaml 파일의 마지막에 현재 보유하고있는 각 주식의 수량을 정확하게 입력했는지 확인하세요.
     * 만약 잘못 입력되어있다면 리밸런싱 전 총 자산을 잘못 계산할 수 있고, 이는 결과적으로 매수/매도해야하는 주식의 수량을 잘못 계산하게 됩니다.
