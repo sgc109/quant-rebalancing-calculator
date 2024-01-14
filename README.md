@@ -11,7 +11,7 @@ involves the calculation of 13612U scores for 10 different assets, adding to the
 inconveniences by automating the calculations, providing guidance on how much to buy and sell for a specific portfolio
 when rebalancing.
 
-## 동작 방식
+## How it works?
 
 * Utilizing the Free Tier of the [Alpaca](https://alpaca.markets/) Market Data API, the program fetches stock prices with a 15-minute delay at most.
 * The rebalancing results (date, additional investment amount, quantity of stocks per asset) are recorded in the stocks-history.yaml file at each rebalancing point. During program execution, it calculates and advises on the quantity to buy or sell for each asset based on the last recorded information, appending the results to the end of the file.
@@ -69,13 +69,17 @@ stocks:
 * 주당 가격이 높은 종목(e.g. SPY, QQQ, ...)이 포함된 경우 총 투자 금액이 너무 적은 경우 목표하는 비율대로 배분이 되지 않을 수 있기 때문에
   처음에 `ADDITIONAL_MONEY_TO_DEPOSIT`는 일정 수준 이상인것이 좋습니다(e.g. 10000 USD 이상)
 
-## 향후 개발 방향성
+## Future Development
 
-* 다른 포트폴리오도 지원
-    * Classic Portfolio, Permanent Portfolio, All Seasons, All Weather, GAA, PAA, DAA, LAA, BAA, ABAA, ...
-* 테스트 작성
-    * 주요 엣지 케이스에 대해 테스트 작성
-    * 코드를 확실하게 검증하기 위해 Property Testing 으로 예상하지 못한 입력에 대해 예외가 발생하지는 않는지 테스트
-* AWS Lambda + S3, 또는 Github Actions 등을 통해 정해진 주기마다 자동 리밸런싱 및 히스토리 기록 & 카톡으로 성공/실패 알림
-* 손쉽게 백테스팅을 할 수 있는 [Kotlin Notebook](https://kotlinlang.org/docs/data-science-overview.html#kotlin-notebook) 추가
-* 자동매매 기능 추가
+* (WIP) Introduction of Kotlin Notebook for Easy Backtesting
+  * Add a Kotlin Notebook to facilitate easy backtesting, leveraging the capabilities provided by Kotlin Notebook.
+* Support for Different Portfolios
+  * Classic Portfolio, Permanent Portfolio, All Seasons, All Weather, GAA, PAA, DAA, LAA, BAA, ABAA, and more will be supported.
+* Test Coverage
+  * Write tests for key edge cases.
+  * Utilize Property Testing to ensure that unexpected inputs do not lead to exceptions and thoroughly validate the code.
+* Automated Rebalancing and Notification
+  * Implement automatic rebalancing and historical record-keeping at predefined intervals using AWS Lambda + S3, Github Actions, or similar services.
+  * Configure notifications via Telegram/LINE/KakaoTalk to receive alerts on successful or failed rebalancing.
+* Incorporate Automated Trading Features
+  * Integrate automatic trading functionalities to enable seamless execution of rebalancing strategies.
