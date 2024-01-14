@@ -13,7 +13,9 @@ class PriceDataManager {
             File("src/backtests/csv").walk()
                 .filter { it.isFile }
                 .associate {
-                    val dateToPrice = csvReader().readAll(it).drop(1).associate { (stringDate, _, _, _, price) ->
+                    val dateToPrice = csvReader().readAll(it).drop(1).associate { cols ->
+                        val stringDate = cols[0]
+                        val price = cols[5]
                         val date = LocalDate.parse(stringDate)
                         date.atTime(16, 0).plusHours(14).atZone(ZoneId.systemDefault()) to price.toDouble()
                     }
