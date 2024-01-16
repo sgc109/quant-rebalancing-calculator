@@ -7,10 +7,12 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
-class PriceDataManager {
+class PriceDataManager(
+    private val baseDir: String = "src/backtests/csv",
+) {
     val allPrices = run {
         val symbolToDateToPrice =
-            File("src/backtests/csv").walk()
+            File(baseDir).walk()
                 .filter { it.isFile }
                 .associate {
                     val dateToPrice = csvReader().readAll(it).drop(1).associate { cols ->
