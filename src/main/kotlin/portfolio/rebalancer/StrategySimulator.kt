@@ -4,6 +4,7 @@ import portfolio.rebalancer.dto.Asset
 import portfolio.rebalancer.dto.AssetShares
 import portfolio.rebalancer.dto.SymbolPricesByDate
 import portfolio.rebalancer.strategy.Strategy
+import portfolio.rebalancer.util.ClosestDateTimeFinder
 import java.time.LocalDate
 import java.time.ZonedDateTime
 

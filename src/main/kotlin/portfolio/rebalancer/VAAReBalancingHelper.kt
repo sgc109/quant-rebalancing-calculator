@@ -3,7 +3,7 @@ package portfolio.rebalancer
 import kotlinx.coroutines.coroutineScope
 import portfolio.rebalancer.io.MarketDataClient
 import portfolio.rebalancer.io.StockHistoryFileManager
-import portfolio.rebalancer.util.Loggable
+import portfolio.rebalancer.config.Loggable
 import kotlin.math.abs
 import kotlin.math.round
 

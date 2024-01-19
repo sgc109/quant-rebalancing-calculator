@@ -1,6 +1,5 @@
 package portfolio.rebalancer.strategy
 
-import portfolio.rebalancer.ClosestDateTimeFinder
 import portfolio.rebalancer.dto.Asset
 import portfolio.rebalancer.dto.Asset.BIL
 import portfolio.rebalancer.dto.Asset.DBC
@@ -14,6 +13,7 @@ import portfolio.rebalancer.dto.Asset.TLT
 import portfolio.rebalancer.dto.Asset.VNQ
 import portfolio.rebalancer.dto.SymbolPricesByDate
 import portfolio.rebalancer.dto.toAssetShares
+import portfolio.rebalancer.util.ClosestDateTimeFinder
 import java.time.Period
 import java.time.ZonedDateTime
 

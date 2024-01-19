@@ -1,4 +1,4 @@
-package portfolio.rebalancer.util
+package portfolio.rebalancer.config
 
 import io.github.oshai.kotlinlogging.KLogger
 import io.github.oshai.kotlinlogging.KotlinLogging

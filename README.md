@@ -82,6 +82,7 @@ stocks:
 * (WIP) Introduction of Kotlin Notebook for Easy Backtesting
     * Add a [Kotlin Notebook](https://kotlinlang.org/docs/data-science-overview.html#kotlin-notebook) to facilitate easy
       backtesting, leveraging the capabilities provided by Kotlin Notebook.
+* Support for configuring trading fee and tax on rebalancing and backtesting.
 * Support for Different Portfolios
     * Classic Portfolio, Permanent Portfolio, All Seasons, All Weather, GAA, PAA, DAA, LAA, BAA, ABAA, and more will be
       supported.

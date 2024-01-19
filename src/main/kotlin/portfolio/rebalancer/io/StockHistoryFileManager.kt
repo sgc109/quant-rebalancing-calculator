@@ -3,7 +3,7 @@ package portfolio.rebalancer.io
 import com.charleskorn.kaml.Yaml
 import portfolio.rebalancer.dto.Asset
 import portfolio.rebalancer.dto.StocksHistory
-import portfolio.rebalancer.util.Loggable
+import portfolio.rebalancer.config.Loggable
 import java.io.FileNotFoundException
 import java.nio.file.Files
 import java.nio.file.Paths
