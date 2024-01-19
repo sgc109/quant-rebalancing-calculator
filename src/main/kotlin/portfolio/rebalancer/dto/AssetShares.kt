@@ -1,5 +1,8 @@
 package portfolio.rebalancer.dto
 
+/**
+ * 각 종목 별 수량을 HashMap 형태로 가지고 있는 클래스
+ */
 data class AssetShares(
     val value: Map<Asset, Long>,
 ) {

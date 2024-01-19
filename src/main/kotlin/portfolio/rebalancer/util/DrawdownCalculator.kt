@@ -13,7 +13,7 @@ class DrawdownCalculator {
         var lastMaxPrice = prices[0]
         for (i in 1..<prices.size) {
             val earnRate = RateCalculator.calculateEarnRate(prices[i], lastMaxPrice)
-            drawdowns.add(minOf(0.0, earnRate) * 100.0)
+            drawdowns.add(minOf(0.0, earnRate))
             lastMaxPrice = maxOf(lastMaxPrice, prices[i])
         }
         return drawdowns

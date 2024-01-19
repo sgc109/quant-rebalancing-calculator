@@ -14,6 +14,7 @@ import portfolio.rebalancer.dto.Asset.VNQ
 import portfolio.rebalancer.dto.SymbolPricesByDate
 import portfolio.rebalancer.dto.toAssetShares
 import portfolio.rebalancer.util.ClosestDateTimeFinder
+import portfolio.rebalancer.util.RateCalculator
 import java.time.Period
 import java.time.ZonedDateTime
 
@@ -70,11 +71,12 @@ class HAAStrategy : Strategy {
             0.0
         }
 
-        val aggressiveAssetSharesToBuy = aggressiveAssetsToBuy.associateWith {
-            if (!symbolToCurrentPrice.containsKey(it)) {
-                println("HI")
+        val aggressiveAssetSharesToBuy = if (aggressiveAssetsBudget > 0) {
+            aggressiveAssetsToBuy.associateWith {
+                (budgetForEachAggressiveAsset / symbolToCurrentPrice[it]!!).toLong()
             }
-            (budgetForEachAggressiveAsset / symbolToCurrentPrice[it]!!).toLong()
+        } else {
+            emptyMap()
         }.toAssetShares()
 
         val defensiveAssetToBuy = if (defensiveAssetsBudget > 0) {
@@ -104,10 +106,18 @@ class HAAStrategy : Strategy {
         return Strategy.Result(
             assetShares = resultAmountsBySymbol,
             targetBuyMoneyPerAsset = defensiveAssetToBuy?.let {
-                aggressiveAssetsTargetBuyPrice + (it to defensiveAssetsBudget)
+                aggressiveAssetsTargetBuyPrice.mergeHashMap(mapOf(it to defensiveAssetsBudget))
             } ?: aggressiveAssetsTargetBuyPrice,
             unusedMoney = budget - resultAmountsBySymbol.value.entries.sumOf { symbolToCurrentPrice[it.key]!! * it.value },
         )
+    }
+
+    private fun Map<Asset, Double>.mergeHashMap(other: Map<Asset, Double>): Map<Asset, Double> {
+        val mergedValue = this.toMutableMap()
+        other.forEach { (symbol, v) ->
+            mergedValue[symbol] = mergedValue.getOrDefault(symbol, 0.0) + v
+        }
+        return mergedValue
     }
 
     private fun calculateMomentumScores(
@@ -125,14 +135,10 @@ class HAAStrategy : Strategy {
                     println("symbol=$symbol, pastMonth=$pastMonth")
                 }
                 val pastPrice = pastMonthToSymbolToPrice[pastMonth]?.get(symbol)!!
-                val earnRatio = calculateEarnRate(basePrice = basePrice, pastPrice = pastPrice)
-                earnRatio
+                val earnRate = RateCalculator.calculateEarnRate(curPrice = basePrice, pastPrice = pastPrice)
+                earnRate
             } / requiredPastMonths.size
         }
-    }
-
-    private fun calculateEarnRate(basePrice: Double, pastPrice: Double): Double {
-        return basePrice / pastPrice - 1.0
     }
 
     companion object {
