@@ -43,7 +43,6 @@ class StrategySimulator {
 
         println("Start simulating from ${commonDates.first()} with $budget USD")
 
-        // TODO: 시작 날짜 찾아서 주기 별로 시뮬레이션 하는 코드 필요(해당 주기에서 가장 가까운 과거 날짜 찾는 부분 중요)
         var nextDate = commonDates.first().plusYears(1)
         val datesToReBalance = mutableSetOf<ZonedDateTime>()
         while (true) {
