@@ -15,4 +15,7 @@ enum class Asset {
     TLT, // iShares 20+ Year Treasury Bond ETF
     TIP, // iShares TIPS Bond ETF
     VNQ, // Vanguard Real Estate ETF
+    AGG, // iShares Core U.S. Aggregate Bond ETF
+    LQD, // iShares iBoxx $ Investment Grade Corporate Bond ETF
+    BND, // Vanguard Total Bond Market ETF
 }
