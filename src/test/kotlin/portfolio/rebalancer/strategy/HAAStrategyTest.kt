@@ -39,6 +39,7 @@ class HAAStrategyTest : DescribeSpec({
             it("가장 상승세가 큰(13612U 모멘텀 스코어가 큰) 4개의 공격자산을 균일하게 매수한다") {
                 val targetAssets = setOf(Asset.VNQ, Asset.TLT, Asset.SPY, Asset.DBC)
                 res.assetShares.value.keys.toSet() shouldBe targetAssets
+                res.targetBuyMoneyPerAsset.keys.shouldContainOnly(targetAssets)
                 targetAssets.forEach {
                     res.targetBuyMoneyPerAsset[it] shouldBe budget / 4
                 }
@@ -72,6 +73,7 @@ class HAAStrategyTest : DescribeSpec({
             it("상승세인 공격 자산인 IEF, TLT, VNQ 를 25% 씩, 나머지 25% 는 가장 상승세인 안전자산인 BIL 를 매수한다") {
                 val targetAssets = setOf(Asset.TLT, Asset.VNQ, Asset.IEF, Asset.BIL)
                 res.assetShares.value.keys.toSet() shouldBe targetAssets
+                res.targetBuyMoneyPerAsset.keys.shouldContainOnly(targetAssets)
                 res.targetBuyMoneyPerAsset[Asset.TLT] shouldBe budget * 0.25
                 res.targetBuyMoneyPerAsset[Asset.VNQ] shouldBe budget * 0.25
                 res.targetBuyMoneyPerAsset[Asset.IEF] shouldBe budget * 0.25
@@ -104,6 +106,7 @@ class HAAStrategyTest : DescribeSpec({
             it("상승세인 공격 자산인 IEF, TLT, VNQ 를 25% 씩, 나머지 25% 는 가장 상승세인 안전자산인 IEF 를 매수한다") {
                 val targetAssets = setOf(Asset.TLT, Asset.VNQ, Asset.IEF)
                 res.assetShares.value.keys.toSet() shouldBe targetAssets
+                res.targetBuyMoneyPerAsset.keys.shouldContainOnly(targetAssets)
                 res.targetBuyMoneyPerAsset[Asset.TLT] shouldBe budget * 0.25
                 res.targetBuyMoneyPerAsset[Asset.VNQ] shouldBe budget * 0.25
                 res.targetBuyMoneyPerAsset[Asset.IEF] shouldBe budget * 0.5 // 공격자산에서 25% + 안전자산에서 25%
@@ -135,6 +138,7 @@ class HAAStrategyTest : DescribeSpec({
             it("상승세인 공격 자산인 TLT, VNQ 를 25% 씩, 나머지 50% 는 가장 상승세인 안전자산인 IEF 을 매수한다") {
                 val targetAssets = setOf(Asset.TLT, Asset.VNQ, Asset.IEF)
                 res.assetShares.value.keys.toSet() shouldBe targetAssets
+                res.targetBuyMoneyPerAsset.keys.shouldContainOnly(targetAssets)
                 res.targetBuyMoneyPerAsset[Asset.TLT] shouldBe budget * 0.25
                 res.targetBuyMoneyPerAsset[Asset.VNQ] shouldBe budget * 0.25
                 res.targetBuyMoneyPerAsset[Asset.IEF] shouldBe budget * 0.5
@@ -165,6 +169,7 @@ class HAAStrategyTest : DescribeSpec({
             // then
             it("가장 상승세가 큰 공격자산인 IWM 25% 와 나머지는 가장 상승세가 큰 안전자산 IEF 를 전량 매수한다") {
                 res.assetShares.value.keys.toSet() shouldBe setOf(Asset.BIL, Asset.IWM)
+                res.targetBuyMoneyPerAsset.keys.shouldContainOnly(Asset.BIL, Asset.IWM)
                 res.targetBuyMoneyPerAsset[Asset.BIL] shouldBe budget * 0.75
                 res.targetBuyMoneyPerAsset[Asset.IWM] shouldBe budget * 0.25
             }
@@ -194,6 +199,7 @@ class HAAStrategyTest : DescribeSpec({
             // then
             it("유일한 상승세인 공격자산이자, 가장 상승세가 큰 안전자산인 IEF 를 전량 매수한다") {
                 res.assetShares.value.keys.toSet() shouldBe setOf(Asset.IEF)
+                res.targetBuyMoneyPerAsset.keys.shouldContainOnly(Asset.IEF)
                 res.targetBuyMoneyPerAsset[Asset.IEF] shouldBe budget // 공격자산으로서 25% + 안전자산으로서 75%
             }
         }
@@ -224,6 +230,7 @@ class HAAStrategyTest : DescribeSpec({
             // then
             it("유일하게 상승세인(13612U 모멘텀 스코어가 0보다 큰) 안전자산 인 BIL 를 전량 매수한다") {
                 res.assetShares.value.keys.toSet().shouldContainOnly(Asset.BIL)
+                res.targetBuyMoneyPerAsset.keys.toSet().shouldContainOnly(Asset.BIL)
                 res.targetBuyMoneyPerAsset[Asset.BIL] shouldBe budget
             }
         }
@@ -252,6 +259,7 @@ class HAAStrategyTest : DescribeSpec({
             // then
             it("가장 상승세가 큰(13612U 모멘텀 스코어가 큰) 안전자산 인 IEF 를 전량 매수한다") {
                 res.assetShares.value.keys.toSet().shouldContainOnly(Asset.IEF)
+                res.targetBuyMoneyPerAsset.keys.toSet().shouldContainOnly(Asset.IEF)
                 res.targetBuyMoneyPerAsset[Asset.IEF] shouldBe budget
             }
         }

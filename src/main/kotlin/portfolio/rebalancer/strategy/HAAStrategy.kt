@@ -48,21 +48,10 @@ class HAAStrategy : Strategy {
 
         println("symbolToMomentumScore=$symbolToMomentumScore")
 
-        val aggressiveAssetsToBuy = AGGRESSIVE_ASSETS.associateWith { symbol ->
-            symbolToMomentumScore[symbol]!!
-        }.entries
-            .filter { it.value > 0.0 }
-            .sortedByDescending { it.value }
-            .take(CNT_AGGRESSIVE_ASSETS_TO_BUY)
-            .map { it.key }
-
-        val aggressiveAssetsBudget = if (symbolToMomentumScore[CANARY_ASSETS.first()]!! > 0) {
-            println("You should buy aggressive assets: $aggressiveAssetsToBuy")
-
-            budget * 0.25 * aggressiveAssetsToBuy.size
-        } else {
-            0.0
-        }
+        val (aggressiveAssetsToBuy, aggressiveAssetsBudget) = calculateAggressiveInfoToBuy(
+            symbolToMomentumScore,
+            budget,
+        )
         val defensiveAssetsBudget = budget - aggressiveAssetsBudget
 
         val budgetForEachAggressiveAsset = if (aggressiveAssetsBudget > 0) {
@@ -110,6 +99,31 @@ class HAAStrategy : Strategy {
             } ?: aggressiveAssetsTargetBuyPrice,
             unusedMoney = budget - resultAmountsBySymbol.value.entries.sumOf { symbolToCurrentPrice[it.key]!! * it.value },
         )
+    }
+
+    private fun calculateAggressiveInfoToBuy(
+        symbolToMomentumScore: Map<Asset, Double>,
+        budget: Double,
+    ): Pair<List<Asset>, Double> {
+        val shouldHaveOnlyDefensive = symbolToMomentumScore[CANARY_ASSETS.first()]!! < 0
+        val (aggressiveAssetsToBuy, aggressiveAssetsBudget) =
+            if (shouldHaveOnlyDefensive) {
+                println("You should only have defensive assets")
+                Pair(emptyList(), 0.0)
+            } else {
+                val aggressiveAssetsToBuy = AGGRESSIVE_ASSETS.associateWith { symbol ->
+                    symbolToMomentumScore[symbol]!!
+                }.entries
+                    .filter { it.value > 0.0 }
+                    .sortedByDescending { it.value }
+                    .take(CNT_AGGRESSIVE_ASSETS_TO_BUY)
+                    .map { it.key }
+                println("You should buy aggressive assets: $aggressiveAssetsToBuy")
+
+                val aggressiveAssetsBudget = budget * 0.25 * aggressiveAssetsToBuy.size
+                Pair(aggressiveAssetsToBuy, aggressiveAssetsBudget)
+            }
+        return Pair(aggressiveAssetsToBuy, aggressiveAssetsBudget)
     }
 
     private fun Map<Asset, Double>.mergeHashMap(other: Map<Asset, Double>): Map<Asset, Double> {

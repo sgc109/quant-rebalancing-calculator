@@ -25,5 +25,15 @@ fun main() = runBlocking {
         dryRun = true, // Uncomment this not to write the result to YAML file and just print it
     )
 
+    // Uncomment this when you want to use legacy VAA strategy(It will eventually be deprecated when new HAAStrategy is stable
+    // val res = LegacyHAAReBalancingHelper(
+    //     stockHistoryFileManager,
+    //     marketDataClient,
+    // ).reBalance(
+    //     additionalMoneyToDeposit = ADDITIONAL_MONEY_TO_DEPOSIT,
+    //     moneyToWithdraw = MONEY_TO_WITHDRAW,
+    //     dryRun = true,
+    // )
+
     res.printResult()
 }
