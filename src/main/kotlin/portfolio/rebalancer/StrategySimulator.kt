@@ -5,11 +5,15 @@ import portfolio.rebalancer.dto.AssetShares
 import portfolio.rebalancer.dto.SymbolPricesByDate
 import portfolio.rebalancer.strategy.Strategy
 import portfolio.rebalancer.util.ClosestDateTimeFinder
+import portfolio.rebalancer.util.DrawdownCalculator
+import portfolio.rebalancer.util.RateCalculator
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
-class StrategySimulator {
+class StrategySimulator(
+    private val drawdownCalculator: DrawdownCalculator,
+) {
     /**
      * allTimePricesBySymbol 에서 전략에서 사용되는 모든 자산의 가격이 존재하는 날짜들을 뽑고,
      * 리밸런싱 주기마다 월 말에서 최대한 가까운, 가격이 존재하는 과거 날짜에 리밸런싱을 한다.
@@ -85,9 +89,15 @@ class StrategySimulator {
             }
         }
 
+        check(budget == results.first().second) {
+            "Initial budget is not equal with the first elements of result list"
+        }
+
         return Result(
-            cagr = 0.0,
-            drawdownsByDate = emptyList(),
+            cagr = RateCalculator.calculateCAGR(totalValuesWithTime = results),
+            drawdownsByDate = results.map { it.first }.zip(
+                listOf(0.0) + drawdownCalculator.calculateDrawdowns(results.map { it.second })
+            ),
             timeSeriesData = results,
         )
     }
@@ -127,6 +137,6 @@ class StrategySimulator {
         val drawdownsByDate: List<Pair<ZonedDateTime, Double>>,
         val timeSeriesData: List<Pair<ZonedDateTime, Double>>,
     ) {
-        // val mdd: Double = drawdownsByDate.minOf { it.second }
+        val mdd: Double = drawdownsByDate.minOf { it.second }
     }
 }

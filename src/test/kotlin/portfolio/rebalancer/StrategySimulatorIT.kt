@@ -4,12 +4,14 @@ import io.kotest.core.spec.style.FunSpec
 import portfolio.rebalancer.dto.SymbolPricesByDate
 import portfolio.rebalancer.io.PriceDataManager
 import portfolio.rebalancer.strategy.HAAStrategy
+import portfolio.rebalancer.util.DrawdownCalculator
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
 class StrategySimulatorIT : FunSpec({
     val allPrices = PriceDataManager()
-    val strategySimulator = StrategySimulator()
+    val drawdownCalculator = DrawdownCalculator()
+    val strategySimulator = StrategySimulator(drawdownCalculator)
 
     test("Run strategy simulation") {
         val simulationRes = strategySimulator.simulate(
@@ -22,13 +24,13 @@ class StrategySimulatorIT : FunSpec({
 
         with(simulationRes) {
             println("CAGR: $cagr")
-            println("Drawdowns:")
-            drawdownsByDate.forEach {
-                println("${it.first}: -${it.second}%")
-            }
+            println("MDD: $mdd")
+            // drawdownsByDate.forEach {
+            //     println("[Drawdowns] ${it.first}: ${it.second}%")
+            // }
         }
-        simulationRes.timeSeriesData.let {
-            println("result: date=${it.first().first} ~ ${it.last().first}, budget=${it.first().second} -> ${it.last().second}")
-        }
+        // simulationRes.timeSeriesData.let {
+        //     println("result: date=${it.first().first} ~ ${it.last().first}, budget=${it.first().second} -> ${it.last().second}")
+        // }
     }
 })

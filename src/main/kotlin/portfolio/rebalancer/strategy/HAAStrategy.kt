@@ -7,6 +7,7 @@ import portfolio.rebalancer.dto.Asset.EFA
 import portfolio.rebalancer.dto.Asset.IEF
 import portfolio.rebalancer.dto.Asset.IWM
 import portfolio.rebalancer.dto.Asset.PDBC
+import portfolio.rebalancer.dto.Asset.DBC
 import portfolio.rebalancer.dto.Asset.SPY
 import portfolio.rebalancer.dto.Asset.TIP
 import portfolio.rebalancer.dto.Asset.TLT
@@ -161,7 +162,7 @@ class HAAStrategy : Strategy {
     companion object {
         private const val CNT_AGGRESSIVE_ASSETS_TO_BUY = 4
 
-        private val AGGRESSIVE_ASSETS = setOf(SPY, IWM, EFA, EEM, VNQ, PDBC, IEF, TLT)
+        private val AGGRESSIVE_ASSETS = setOf(SPY, IWM, EFA, EEM, VNQ, DBC, IEF, TLT)
         private val DEFENSIVE_ASSETS = setOf(IEF, BIL)
         private val CANARY_ASSETS = setOf(TIP)
     }
