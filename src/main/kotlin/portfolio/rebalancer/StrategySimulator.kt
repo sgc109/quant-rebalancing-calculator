@@ -7,7 +7,6 @@ import portfolio.rebalancer.strategy.Strategy
 import portfolio.rebalancer.util.ClosestDateTimeFinder
 import portfolio.rebalancer.util.DrawdownCalculator
 import portfolio.rebalancer.util.RateCalculator
-import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
@@ -126,10 +125,6 @@ class StrategySimulator(
         return assetShares.value.entries.sumOf { (symbol, amount) ->
             allTimePrices[baseTime]?.get(symbol)!! * amount
         }
-    }
-
-    fun LocalDate.getLastDayOfMonth(): Int {
-        return this.plusMonths(1).minusDays(1).dayOfMonth
     }
 
     data class Result(
