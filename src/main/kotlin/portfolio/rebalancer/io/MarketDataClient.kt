@@ -100,7 +100,12 @@ class MarketDataClient {
                 BarTimePeriod.DAY,
                 BarAdjustment.SPLIT,
                 BarFeed.IEX,
-            ).bars.mapValues { it.value.first().close }
+            ).bars
+            .also {
+                if (pastMonth == 0) {
+                    println("baseTime=$baseTime, priceDate=${it.values.first().first().timestamp}")
+                }
+            }.mapValues { it.value.first().close }
             .mapKeys { Asset.valueOf(it.key) }
     }
 

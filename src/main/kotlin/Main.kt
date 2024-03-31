@@ -1,4 +1,5 @@
 import kotlinx.coroutines.runBlocking
+import portfolio.rebalancer.LegacyHAAReBalancingHelper
 import portfolio.rebalancer.ReBalancingRunner
 import portfolio.rebalancer.io.MarketDataClient
 import portfolio.rebalancer.io.StockHistoryFileManager

@@ -65,37 +65,37 @@ class ClosestDateTimeFinderTest : DescribeSpec({
         }
     }
 
-    describe("정확히 일치하는 날짜는 없지만, 4일 이하로 차이나는 가까운 날짜가 있는 경우") {
-        context("4일 이전 날짜가 있는 경우") {
+    describe("정확히 일치하는 날짜는 없지만, 5일 이하로 차이나는 가까운 날짜가 있는 경우") {
+        context("5일 이전 날짜가 있는 경우") {
             // given
-            val beforeFourDays = baseTime.minusDays(4)
+            val beforeFourDays = baseTime.minusDays(5)
 
             // when
             val res = ClosestDateTimeFinder.findClosestDate(baseTime = baseTime, dates = listOf(beforeFourDays))
 
             // then
-            it("4일 이전 날짜가 조회되어야 한다") {
+            it("5일 이전 날짜가 조회되어야 한다") {
                 res shouldBe beforeFourDays
             }
         }
 
-        context("4일 이후 날짜가 있는 경우") {
+        context("5일 이후 날짜가 있는 경우") {
             // given
-            val afterFourDays = baseTime.plusDays(4)
+            val afterFourDays = baseTime.plusDays(5)
 
             // when
             val res = ClosestDateTimeFinder.findClosestDate(baseTime = baseTime, dates = listOf(afterFourDays))
 
             // then
-            it("4일 이후 날짜가 조회되어야 한다") {
+            it("5일 이후 날짜가 조회되어야 한다") {
                 res shouldBe afterFourDays
             }
         }
 
-        context("4일 이전과 4일 이후 날짜가 있는 경우") {
+        context("5일 이전과 5일 이후 날짜가 있는 경우") {
             // given
-            val beforeFourDays = baseTime.minusDays(4)
-            val afterFourDays = baseTime.plusDays(4)
+            val beforeFourDays = baseTime.minusDays(5)
+            val afterFourDays = baseTime.plusDays(5)
 
             // when
             val res = ClosestDateTimeFinder.findClosestDate(
@@ -104,7 +104,7 @@ class ClosestDateTimeFinderTest : DescribeSpec({
             )
 
             // then
-            it("4일 이전 날짜가 조회되어야 한다") {
+            it("5일 이전 날짜가 조회되어야 한다") {
                 res shouldBe beforeFourDays
             }
         }
@@ -113,8 +113,8 @@ class ClosestDateTimeFinderTest : DescribeSpec({
     describe("정확히 일치하는 날짜도 없고, 가까운 날짜도 없는 경우") {
         context("가까운 날짜조차 없는 경우") {
             // given
-            val beforeFiveDays = baseTime.minusDays(5)
-            val afterFiveDays = baseTime.plusDays(5)
+            val beforeFiveDays = baseTime.minusDays(6)
+            val afterFiveDays = baseTime.plusDays(6)
 
             // when, then
             shouldThrowExactly<NoSuchElementException> {

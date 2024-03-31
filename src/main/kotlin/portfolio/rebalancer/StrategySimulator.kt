@@ -7,6 +7,7 @@ import portfolio.rebalancer.strategy.Strategy
 import portfolio.rebalancer.util.ClosestDateTimeFinder
 import java.time.LocalDate
 import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 
 class StrategySimulator {
     /**
@@ -27,7 +28,9 @@ class StrategySimulator {
         endDate: ZonedDateTime = ZonedDateTime.now(),
     ): Result {
         // TODO: 시작 날짜부터 끝 날짜까지 해당 전략의 리밸런싱 주기마다 리밸런싱하면서(만약 해당 날짜에 가격이 없다면 과거 최근 가격 기준으로)
-        // 최종 자산을 도출해내고, 이를 바탕으로 값을 반환한다.
+        //  최종 자산을 도출해내고, 이를 바탕으로 값을 반환한다.
+
+        // 모든 자산에 대해 가격 정보가 있는 날짜들만 뽑는다
         val commonDates =
             allTimeSymbolPrices.value.keys.sorted().filter { date ->
                 strategy.allAssets.all { symbol: Asset ->
@@ -37,23 +40,28 @@ class StrategySimulator {
                 dates.dropWhile { it < startDate }.dropLastWhile { endDate < it }
             }
 
-        if (commonDates.isEmpty()) {
-            throw IllegalArgumentException("There is no common price date between all symbols used in given strategy")
-        }
+        checkIfPriceDatesValid(commonDates)
 
-        println("Start simulating from ${commonDates.first()} with $budget USD")
+        println("Start simulating ${commonDates.first()} ~ ${commonDates.last()} with $budget USD")
 
-        var nextDate = commonDates.first().plusYears(1)
+        // 리밸런싱 시 최근 12개월 수익률을 계산해야하므로 1년 후부터 리밸런싱 한다
+        // 단, 12개월 후가 휴장인 경우 첫 리밸런싱 시기가 과거 날짜로 이동하므로, 12개월 전 가격 데이터가 없는 예외 상황을 방어하기 위해
+        // 추가로 1개월 뒤로 간다.
+        var nextDate = ClosestDateTimeFinder.findLatestDateInMonth(
+            baseTime = commonDates.first().plusMonths(13),
+            dates = commonDates,
+        )
         val datesToReBalance = mutableSetOf<ZonedDateTime>()
         while (true) {
+            datesToReBalance.add(nextDate)
             try {
-                ClosestDateTimeFinder.findClosestDate(nextDate, commonDates)
+                nextDate = ClosestDateTimeFinder.findLatestDateInMonth(
+                    baseTime = nextDate + strategy.rebalancingPeriod,
+                    dates = commonDates,
+                )
             } catch (e: Exception) {
                 break
-            }.let {
-                datesToReBalance.add(it)
             }
-            nextDate += strategy.rebalancingPeriod
         }
         println("datesToReBalance=$datesToReBalance")
 
@@ -82,6 +90,22 @@ class StrategySimulator {
             drawdownsByDate = emptyList(),
             timeSeriesData = results,
         )
+    }
+
+    private fun checkIfPriceDatesValid(commonDates: List<ZonedDateTime>) {
+        if (commonDates.isEmpty()) {
+            throw IllegalStateException("There is no common price date between all symbols used in given strategy")
+        }
+
+        // 만약 중간에 4일 이상 차이 나는 날이 있으면 미리 감지하여 빠르기 실패처리를 한다(미국은 휴
+        commonDates.windowed(2).map { (prev, next) ->
+            if (ChronoUnit.DAYS.between(prev, next) > 5L) {
+                throw IllegalStateException(
+                    "There are some days different more than 5 days in price data for backtesting" +
+                        "($prev -> $next)."
+                )
+            }
+        }
     }
 
     private fun estimateCurrentTotalValue(

@@ -41,7 +41,7 @@ class LegacyHAAReBalancingHelper(
 
         val symbolToMomentumScore = calculateMomentumScores(symbolToCurrentPrice, pastMonthToSymbolToPrice)
 
-        println("symbolToMomentumScore=$symbolToMomentumScore")
+        println("symbolToMomentumScore=${symbolToMomentumScore.entries.toList().sortedByDescending { it.value }}")
 
         val originalTotalPrice = originalStocksAmountMap.map {
             symbolToCurrentPrice[it.key]!! * it.value

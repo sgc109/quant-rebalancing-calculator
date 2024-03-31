@@ -15,19 +15,17 @@ class MinimumInitialBalanceSearchTest : FunSpec({
         strategy = HAAStrategy(),
     )
 
-    test("모든 자산 분배 비율에 미사용 금액의 비율이 10% 미만인 최소 추가 투입 비용 찾기") {
+    test("모든 자산 분배 비율에 미사용 금액의 비율이 5% 미만인 최소 추가 투입 비용 찾기") {
         var found = false
 
         // 필요에 따라 수정
         val start = 0
-        val end = 20000
-        val step = 100
-        val unusedPercentLimit = 10
+        val end = 3000
+        val step = 10
+        val unusedPercentLimit = 5
 
         for (additionalMoney in start..end step step) {
-            if (additionalMoney % 1000 == 0) {
-                println("[progress] additionalMoney: $additionalMoney")
-            }
+            println("[progress] additionalMoney: $additionalMoney")
 
             val res =
                 haaReBalancingRunner.reBalance(

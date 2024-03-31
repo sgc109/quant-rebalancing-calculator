@@ -6,7 +6,6 @@ import portfolio.rebalancer.dto.SymbolPricesByDate
 import portfolio.rebalancer.io.MarketDataClient
 import portfolio.rebalancer.io.StockHistoryFileManager
 import portfolio.rebalancer.strategy.Strategy
-import java.time.ZoneId
 import kotlin.math.abs
 import kotlin.math.round
 
@@ -35,7 +34,7 @@ class ReBalancingRunner(
         println("You are adding $additionalMoneyToDeposit USD to your portfolio!")
         println("You are withdrawing $moneyToWithdraw USD to your portfolio!")
 
-        val currentTime = marketDataClient.getLatestMinuteBar().timestamp.withZoneSameLocal(ZoneId.systemDefault())
+        val currentTime = marketDataClient.getLatestMinuteBar().timestamp
         println("currentTime: $currentTime")
 
         val pastMonthToSymbolToPrice: SymbolPricesByDate =

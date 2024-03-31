@@ -2,11 +2,11 @@ package portfolio.rebalancer.strategy
 
 import portfolio.rebalancer.dto.Asset
 import portfolio.rebalancer.dto.Asset.BIL
-import portfolio.rebalancer.dto.Asset.DBC
 import portfolio.rebalancer.dto.Asset.EEM
 import portfolio.rebalancer.dto.Asset.EFA
 import portfolio.rebalancer.dto.Asset.IEF
 import portfolio.rebalancer.dto.Asset.IWM
+import portfolio.rebalancer.dto.Asset.PDBC
 import portfolio.rebalancer.dto.Asset.SPY
 import portfolio.rebalancer.dto.Asset.TIP
 import portfolio.rebalancer.dto.Asset.TLT
@@ -46,7 +46,7 @@ class HAAStrategy : Strategy {
             pricesInfo.value.keys.toList(),
         ).let { pricesInfo.value[it]!! }
 
-        println("symbolToMomentumScore=$symbolToMomentumScore")
+        println("symbolToMomentumScore=${symbolToMomentumScore.entries.toList().sortedByDescending { it.value }}")
 
         val (aggressiveAssetsToBuy, aggressiveAssetsBudget) = calculateAggressiveInfoToBuy(
             symbolToMomentumScore,
@@ -141,6 +141,9 @@ class HAAStrategy : Strategy {
 
         return allAssets.associateWith { symbol ->
             requiredPastMonths.sumOf { pastMonth ->
+                if (!symbolToCurrentPrice.containsKey(symbol)) {
+                    println("'symbolToCurrentPrice' doesn't contain price data!!!!!!!!!!!!!!!!!!!symbol=$symbol, pastMonth=$pastMonth!!!!!!!!!!!!!")
+                }
                 val basePrice = symbolToCurrentPrice[symbol]!!
                 if (!pastMonthToSymbolToPrice.containsKey(pastMonth)) {
                     println("symbol=$symbol, pastMonth=$pastMonth")
@@ -158,7 +161,7 @@ class HAAStrategy : Strategy {
     companion object {
         private const val CNT_AGGRESSIVE_ASSETS_TO_BUY = 4
 
-        private val AGGRESSIVE_ASSETS = setOf(SPY, IWM, EFA, EEM, VNQ, DBC, IEF, TLT)
+        private val AGGRESSIVE_ASSETS = setOf(SPY, IWM, EFA, EEM, VNQ, PDBC, IEF, TLT)
         private val DEFENSIVE_ASSETS = setOf(IEF, BIL)
         private val CANARY_ASSETS = setOf(TIP)
     }
