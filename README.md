@@ -1,5 +1,7 @@
 # quant-rebalancing-calculator
 
+![image](https://github.com/user-attachments/assets/8fbb567a-a43e-456c-bb23-db0cdfc33a85)
+
 This code facilitates the easy rebalancing of portfolios following well-known dynamic asset allocation strategies such
 as VAA(Vigilant Asset Allocation)([Paper](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3002624)) and HAA(Hybrid
 Asset Allocation)([Paper](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4346906))
